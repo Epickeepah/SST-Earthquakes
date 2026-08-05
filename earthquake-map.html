@@ -316,27 +316,12 @@
             );
 
             const response = await fetch(
-                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2&limit=500`);
+                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2`);
 
             document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
             document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
 
             const earthquakes = await response.json();
-
-            const positions = earthquakes.features.map(quake =>
-                Cesium.Cartographic.fromDegrees(
-                    quake.geometry.coordinates[0],
-                    quake.geometry.coordinates[1]
-                )
-            );
-
-            await viewer.terrainProvider.readyPromise;
-
-            const terrainHeights = await Cesium.sampleTerrainMostDetailed(
-                viewer.terrainProvider,
-                positions
-            );
-
 
             for (let i = 0; i < earthquakes.features.length; i++) {
 
