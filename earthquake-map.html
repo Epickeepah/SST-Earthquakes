@@ -261,7 +261,7 @@
             );
 
             const response = await fetch(
-                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}&endtime=${year}-${month}-${day}`);
+                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2`);
 
             document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
             document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
