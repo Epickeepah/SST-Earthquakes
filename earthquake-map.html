@@ -60,7 +60,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            background-color: red;
         }
 
         .popup {
@@ -111,6 +110,31 @@
             display: flex;
             gap: 200px;
         }
+
+        .current-date-container {
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+
+            display: flex;
+            gap: 10px;
+
+            color: white;
+            z-index: 3000;
+        }
+
+        .current-date {
+            margin: 0;
+        }
+
+        .date-container {
+            display: flex;
+            gap: 40px;
+        }
+
+        .date-group {
+            width: 220px;
+        }
     </style>
 
 </head>
@@ -154,7 +178,7 @@
         // Start date (default to today)
         let start_year = year;
         let start_month = month;
-        let start_day = day - 1;
+        let start_day = String(Number(day) - 1).padStart(2, "0");
 
 
 
@@ -173,6 +197,9 @@
 
             const response = await fetch(
                 `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}&endtime=${year}-${month}-${day}`);
+
+            document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
+            document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
 
             const earthquakes = await response.json();
 
@@ -255,12 +282,27 @@
 
         function submitDate() {
 
+            // Start date
             start_day = document.getElementById("day").value.padStart(2, "0");
             start_month = document.getElementById("month").value.padStart(2, "0");
             start_year = document.getElementById("year").value;
 
-            viewer.entities.removeAll(); // Remove old earthquake dots
-            loadEarthquakes();           // Load earthquakes with new dates
+            // End date
+            day = document.getElementById("end-day").value.padStart(2, "0");
+            month = document.getElementById("end-month").value.padStart(2, "0");
+            year = document.getElementById("end-year").value;
+
+            // Check dates are valid
+            const start = new Date(start_year, start_month - 1, start_day);
+            const end = new Date(year, month - 1, day);
+
+            if (start > end) {
+                alert("Start date cannot be after end date.");
+                return;
+            }
+
+            viewer.entities.removeAll();
+            loadEarthquakes();
 
             closeMenu();
         }
@@ -273,101 +315,213 @@
         <button class="calendar-button" onclick="openMenu()">
             <img src="images/white_calendar.png" alt="calendar">
         </button>
+
+        <div class="current-date-container">
+
+            <h2 id="current-date-bottom" class="current-date"></h2>
+
+            <h2 class="current-date">-</h2>
+
+            <h2 id="current-date-top" class="current-date"></h2>
+
+        </div>
     </main>
 
 
     <div id="popup" class="popup">
         <h1 class="select-date">Select Date</h1>
 
-        <div class="date-header">
-            <h2>Start Date</h2>
-        </div>
+        <section class="date-container">
+
+            <section class="date-group">
+                <div class="date-header">
+                    <h2>Start Date</h2>
+                </div>
 
 
-        <label for="day">Day:</label>
+                <label for="day">Day:</label>
 
-        <select id="day">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-            <option value="16">16</option>
-            <option value="17">17</option>
-            <option value="18">18</option>
-            <option value="19">19</option>
-            <option value="20">20</option>
-            <option value="21">21</option>
-            <option value="22">22</option>
-            <option value="23">23</option>
-            <option value="24">24</option>
-            <option value="25">25</option>
-            <option value="26">26</option>
-            <option value="27">27</option>
-            <option value="28">28</option>
-            <option value="29">29</option>
-            <option value="30">30</option>
-            <option value="31">31</option>
-        </select>
-        <br>
-        <label for="month">Month:</label>
-        <select id="month">
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-        </select>
-        <br>
+                <select id="day">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                    <option value="28">28</option>
+                    <option value="29">29</option>
+                    <option value="30">30</option>
+                    <option value="31">31</option>
+                </select>
+                <br>
+                <label for="month">Month:</label>
+                <select id="month">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <br>
 
-        <label for="year">Year:</label>
+                <label for="year">Year:</label>
 
-        <select id="year">
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-            <option value="2018">2018</option>
-            <option value="2017">2017</option>
-            <option value="2016">2016</option>
-            <option value="2015">2015</option>
-            <option value="2014">2014</option>
-            <option value="2013">2013</option>
-            <option value="2012">2012</option>
-            <option value="2011">2011</option>
-            <option value="2010">2010</option>
-            <option value="2009">2009</option>
-            <option value="2008">2008</option>
-            <option value="2007">2007</option>
-            <option value="2006">2006</option>
-            <option value="2005">2005</option>
-            <option value="2004">2004</option>
-            <option value="2003">2003</option>
-            <option value="2002">2002</option>
-            <option value="2001">2001</option>
-            <option value="2000">2000</option>
-        </select>
+                <select id="year">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
+                    <option value="2014">2014</option>
+                    <option value="2013">2013</option>
+                    <option value="2012">2012</option>
+                    <option value="2011">2011</option>
+                    <option value="2010">2010</option>
+                    <option value="2009">2009</option>
+                    <option value="2008">2008</option>
+                    <option value="2007">2007</option>
+                    <option value="2006">2006</option>
+                    <option value="2005">2005</option>
+                    <option value="2004">2004</option>
+                    <option value="2003">2003</option>
+                    <option value="2002">2002</option>
+                    <option value="2001">2001</option>
+                    <option value="2000">2000</option>
+                </select>
+
+            </section>
+
+            <section class="date-group">
+                <div class="date-header">
+                    <h2>End Date</h2>
+                </div>
+
+                <label for="end-day">Day:</label>
+
+                <select id="end-day">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                    <option value="28">28</option>
+                    <option value="29">29</option>
+                    <option value="30">30</option>
+                    <option value="31">31</option>
+                </select>
+
+                <br>
+
+                <label for="end-month">Month:</label>
+
+                <select id="end-month">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+
+                <br>
+
+                <label for="end-year">Year:</label>
+
+                <select id="end-year">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
+                    <option value="2014">2014</option>
+                    <option value="2013">2013</option>
+                    <option value="2012">2012</option>
+                    <option value="2011">2011</option>
+                    <option value="2010">2010</option>
+                    <option value="2009">2009</option>
+                    <option value="2008">2008</option>
+                    <option value="2007">2007</option>
+                    <option value="2006">2006</option>
+                    <option value="2005">2005</option>
+                    <option value="2004">2004</option>
+                    <option value="2003">2003</option>
+                    <option value="2002">2002</option>
+                    <option value="2001">2001</option>
+                    <option value="2000">2000</option>
+                </select>
+            </section>
+
+        </section>
 
         <br>
         <button onclick="submitDate()">Submit</button>
