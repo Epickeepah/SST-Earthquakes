@@ -316,7 +316,7 @@
             );
 
             const response = await fetch(
-                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2`);
+                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2&limit=500`);
 
             document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
             document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
@@ -339,13 +339,13 @@
 
                 if (quake.properties.mag >= 6) {
 
-                    newDotSize = quake.properties.mag * 8
+                    let newDotSize = quake.properties.mag * 8
                     dotSize = newDotSize;
                     dotColor = Cesium.Color.RED;
                     titleColor = "red"
 
                 } else if (quake.properties.mag >= 4 && quake.properties.mag < 5.9) {
-                    newDotSize = quake.properties.mag * 6
+                    let newDotSize = quake.properties.mag * 6
                     dotSize = newDotSize;
                     dotColor = Cesium.Color.ORANGE;
                     titleColor = "orange"
