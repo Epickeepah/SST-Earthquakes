@@ -1,10 +1,19 @@
-function openMenu() {
+function openCalendarMenu() {
     console.log("Menu button clicked");
     document.getElementById("popup").style.display = "block";
 }
 
-function closeMenu() {
+function closeCalendarMenu() {
     document.getElementById("popup").style.display = "none";
+}
+
+function openSettingsMenu() {
+    console.log("Menu Button Clicked")
+    document.getElementById("settings-popup").style.display = "block"
+}
+
+function closeSettingsMenu() {
+    document.getElementById("settings-popup").style.display = "none";
 }
 
 function toggleDays() {
