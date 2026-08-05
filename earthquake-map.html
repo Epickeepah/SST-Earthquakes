@@ -302,70 +302,73 @@
 
         async function loadEarthquakes() {
 
-            document.getElementById("loading-screen").style.display = "flex";
+            const loading = document.getElementById("loading-screen");
+            loading.style.display = "flex";
+
+            try {
 
 
-            if (day === start_day) {
-                start_day = start_day - 1;
-            }
-
-            viewer.entities.removeAll();
-
-            console.log(
-                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}&endtime=${year}-${month}-${day}`
-            );
-
-            const response = await fetch(
-                `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2&limit=500`);
-
-            document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
-            document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
-
-            const earthquakes = await response.json();
-
-            for (let i = 0; i < earthquakes.features.length; i++) {
-
-                const quake = earthquakes.features[i];
-
-                let longitude = quake.geometry.coordinates[0];
-                let latitude = quake.geometry.coordinates[1];
-
-                let groundHeight = 0;
-
-                let dotSize = 10;
-                let dotColor = Cesium.Color.GREEN;
-                let titleColor = "green";
-
-
-                if (quake.properties.mag >= 6) {
-
-                    let newDotSize = quake.properties.mag * 8
-                    dotSize = newDotSize;
-                    dotColor = Cesium.Color.RED;
-                    titleColor = "red"
-
-                } else if (quake.properties.mag >= 4 && quake.properties.mag < 5.9) {
-                    let newDotSize = quake.properties.mag * 6
-                    dotSize = newDotSize;
-                    dotColor = Cesium.Color.ORANGE;
-                    titleColor = "orange"
+                if (day === start_day) {
+                    start_day = start_day - 1;
                 }
 
+                viewer.entities.removeAll();
 
-                viewer.entities.add({
+                console.log(
+                    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}&endtime=${year}-${month}-${day}`
+                );
 
-                    position: Cesium.Cartesian3.fromDegrees(
-                        longitude,
-                        latitude,
-                        groundHeight + 2000
-                    ),
+                const response = await fetch(
+                    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=2`);
 
-                    point: {
-                        pixelSize: dotSize,
-                        color: dotColor
-                    },
+                document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
+                document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
 
-                    description: `
+                const earthquakes = await response.json();
+
+                for (let i = 0; i < earthquakes.features.length; i++) {
+
+                    const quake = earthquakes.features[i];
+
+                    let longitude = quake.geometry.coordinates[0];
+                    let latitude = quake.geometry.coordinates[1];
+
+                    let groundHeight = 0;
+
+                    let dotSize = 10;
+                    let dotColor = Cesium.Color.GREEN;
+                    let titleColor = "green";
+
+
+                    if (quake.properties.mag >= 6) {
+
+                        let newDotSize = quake.properties.mag * 8
+                        dotSize = newDotSize;
+                        dotColor = Cesium.Color.RED;
+                        titleColor = "red"
+
+                    } else if (quake.properties.mag >= 4 && quake.properties.mag < 5.9) {
+                        let newDotSize = quake.properties.mag * 6
+                        dotSize = newDotSize;
+                        dotColor = Cesium.Color.ORANGE;
+                        titleColor = "orange"
+                    }
+
+
+                    viewer.entities.add({
+
+                        position: Cesium.Cartesian3.fromDegrees(
+                            longitude,
+                            latitude,
+                            groundHeight + 2000
+                        ),
+
+                        point: {
+                            pixelSize: dotSize,
+                            color: dotColor
+                        },
+
+                        description: `
         <div style="
             font-family: Arial;
             padding: 10px;
@@ -396,12 +399,29 @@
 
         </div>
         `
-                });
-            };
-            document.getElementById("loading-screen").style.display = "none";
+                    });
+                };
+                document.getElementById("loading-screen").style.display = "none";
+            } catch (error) {
+                console.error("Earthquake loading failed:", error);
+
+            } finally {
+                loading.style.display = "none";
+            }
         }
 
-        loadEarthquakes();
+        let earthquakesLoaded = false;
+
+        viewer.scene.globe.tileLoadProgressEvent.addEventListener(function (tilesLoading) {
+
+            if (tilesLoading === 0 && !earthquakesLoaded) {
+
+                earthquakesLoaded = true;
+                loadEarthquakes();
+
+            }
+
+        });
 
         function submitDate() {
 
