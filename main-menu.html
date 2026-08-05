@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Testing Main</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: Inter, system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #fcfafa;
+            color: #faf6f6;
+            display: grid;
+            place-items: center;
+        }
+
+        main {
+            width: min(720px, calc(100% - 32px));
+            padding: 42px 0;
+        }
+
+        h1 {
+            margin: 0;
+            color: rgb(12, 12, 12);
+            font-size: clamp(2.3rem, 7vw, 4.5rem);
+            letter-spacing: -.06em;
+
+        }
+
+        .intro {
+            color: #aeb9c9;
+            margin: 12px 0 28px;
+            font-size: 1.1rem;
+        }
+
+        form,
+        .result {
+            background: #504f4f;
+            border: 1px solid #504f4f;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 18px 60px #504f4f;
+        }
+
+        .top-frame {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: 0px;
+
+            width: 100vw;
+            height: 125px;
+            border-radius: 0px;
+
+        }
+
+        .side-frame {
+            position: absolute;
+            left: 0px;
+            top: 170px;
+            bottom: 0px;
+
+            width: 150px;
+            height: 100vh;
+            border-radius: 0px;
+        }
+
+        .Logo {
+            top: 0px;
+            left: 0px;
+            width: 150px;
+            height: 150px;
+        }
+
+        .SST {
+            position: absolute;
+            left: 200px;
+            top: 30px;
+            color: white;
+            font-size: 48px;
+
+        }
+
+        .Earthquakes {
+            position: absolute;
+            left: 200px;
+            top: 80px;
+            color: white;
+            font-size: 48px;
+        }
+
+        .map-button {
+            display: inline-block;
+
+            width: 150px;
+            height: 55px;
+
+            background-color: gray;
+            border: 2px solid #666;
+            border-radius: 8px;
+
+            text-align: center;
+            padding-top: 10px;
+
+            text-decoration: none;
+            cursor: pointer;
+
+            box-sizing: border-box;
+        }
+
+        .earthquake-map {
+            margin-top: 150px;
+        }
+
+        .all-earthquakes {
+            margin-top: 50px;
+        }
+
+        .earthquakes-analytics {
+            margin-top: 50px;
+            height: 80px;
+        }
+
+        .white {
+            color: white;
+        }
+
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <form class="top-frame">
+            <img src="images/logo.PNG" alt="Logo" class="Logo">
+            <h1 class="SST">SST</h1>
+            <h1 class="Earthquakes">MAPS</h1>
+        </form>
+        <form class="side-frame">
+            <a href="earthquake-map.html" class="map-button earthquake-map">
+                <span class="white">Earthquake Map</span><br>
+            </a>
+
+            <a href="earthquakes-list.html" class="map-button all-earthquakes">
+                <span class="white">Earthquake List</span><br>
+                <span class="red">(Not Ready Yet)</span>
+            </a>
+
+            <a href="earthquake-analytics.html" class="map-button earthquakes-analytics">
+                <span class="white">Earthquake Analytics</span><br>
+                <span class="red">(Not Ready Yet)</span>
+            </a>
+        </form>
+    </main>
+</body>
+
+</html>
