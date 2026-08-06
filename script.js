@@ -31,6 +31,7 @@ function selectDay(day) {
     document.getElementById("selectedDay").textContent = day;
 
     document.getElementById("dayList").style.display = "none";
+
 }
 
 const currentDateCheck = document.getElementById("current-date-check");
