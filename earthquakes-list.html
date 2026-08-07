@@ -381,7 +381,7 @@
                     <span class="slider"></span>
                 </label>
 
-                <h6 class="checkbox-text">Only Show 2.5 and Greater</h6>
+                <h6 class="checkbox-text">Only Show 2.5 and Under</h6>
 
             </div>
             <br>
@@ -413,9 +413,9 @@
             const toggle = document.getElementById("magnitude-toggle");
 
             if (toggle.checked) {
-                minimumMagnitude = 2.5;
-            } else {
                 minimumMagnitude = 2;
+            } else {
+                minimumMagnitude = 2.5;
             }
 
             closeListSettingMenu();
@@ -442,7 +442,7 @@
 
         const end = new Date();
         const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-        let minimumMagnitude = 2
+        let minimumMagnitude = 2.5
 
         async function loadEarthquakes() {
             const earthquakeList = document.getElementById("earthquake-list");
