@@ -170,13 +170,21 @@
                 font-size: 13px;
             }
 
+            .map-button,
+            .settings-button {
+                width: 30px;
+                height: 30px;
+            }
+
+            .version {
+                font-size: 12px;
+            }
+
+
 
         }
 
         .map-button {
-            position: absolute;
-            top: 8px;
-            left: 10px;
 
             width: 35px;
             height: 35px;
@@ -221,9 +229,6 @@
         }
 
         .settings-button {
-            position: absolute;
-            top: 8px;
-            margin-left: 28px;
             width: 35px;
             height: 35px;
 
@@ -308,6 +313,37 @@
         .today {
             color: white;
         }
+
+        .top-controls {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            right: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            z-index: 1000;
+        }
+
+        .left-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .version {
+            color: white;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
     </style>
 
 
@@ -316,15 +352,23 @@
 <body>
 
     <main>
-        <a href="index.html" class="map-button">
-            <img src="images/white_back_button.png" alt="back">
-        </a>
+        <div class="top-controls">
 
-        <button class="settings-button" onclick="openListSettingMenu()">
-            <img src="images/settings-button.png" alt="settings">
-        </button>
+            <div class="left-buttons">
 
-        <h2 id="version-text" style="color: white; left: 0px;"></h2>
+                <a href="index.html" class="map-button">
+                    <img src="images/white_back_button.png" alt="back">
+                </a>
+
+                <button class="settings-button" onclick="openListSettingMenu()">
+                    <img src="images/settings-button.png" alt="settings">
+                </button>
+
+            </div>
+
+            <h2 id="version-text" class="version"></h2>
+
+        </div>
 
         <div id="list-settings-popup" class="list-settings-popup">
             <h1 class=" select-date">Settings</h1>
