@@ -16,6 +16,15 @@ function closeSettingsMenu() {
     document.getElementById("settings-popup").style.display = "none";
 }
 
+function openListSettingMenu() {
+    console.log("Menu Button Clicked")
+    document.getElementById("list-settings-popup").style.display = "block"
+}
+
+function closeListSettingMenu() {
+    document.getElementById("list-settings-popup").style.display = "none";
+}
+
 function toggleDays() {
     const list = document.getElementById("dayList");
 
@@ -95,3 +104,4 @@ currentDateCheck.addEventListener("change", function () {
     }
 
 });
+

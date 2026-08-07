@@ -147,13 +147,14 @@
     </style>
 </head>
 
+
 <body>
     <main>
         <form class="top-frame">
             <img src="images/logo.PNG" alt="Logo" class="Logo">
             <h1 class="SST">SST</h1>
             <h1 class="Earthquakes">MAPS</h1>
-            <h2 class="Version">2.1.4</h2>
+            <h2 class="Version" id="version-text"></h2>
         </form>
         <form class="side-frame">
             <a href="earthquake-map.html" class="map-button earthquake-map">
@@ -170,6 +171,12 @@
             </a>
         </form>
     </main>
+    <script src="config.js"></script>
+
+    <script>
+        document.getElementById("version-text").textContent = WEB_VERSION;
+    </script>
 </body>
+
 
 </html>

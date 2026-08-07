@@ -194,6 +194,120 @@
             height: 100%;
             object-fit: contain;
         }
+
+        .list-settings-popup {
+            display: none;
+
+            position: fixed;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 400px;
+            height: 300px;
+
+            padding: 30px;
+
+            background: rgb(48, 51, 54);
+            color: white;
+
+            border: 2px solid #666;
+            border-radius: 12px;
+
+            z-index: 2000;
+
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .settings-button {
+            position: absolute;
+            top: 8px;
+            margin-left: 28px;
+            width: 35px;
+            height: 35px;
+
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            background: rgb(48, 51, 54);
+            padding: 0;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .settings-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            background-color: #777;
+            border-radius: 28px;
+
+            transition: 0.3s;
+        }
+
+        .slider::before {
+            content: "";
+
+            position: absolute;
+            height: 22px;
+            width: 22px;
+
+            left: 3px;
+            bottom: 3px;
+
+            background-color: white;
+            border-radius: 50%;
+
+            transition: 0.3s;
+        }
+
+        input:checked+.slider {
+            background-color: #2196f3;
+        }
+
+        input:checked+.slider::before {
+            transform: translateX(22px);
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-text {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .today {
+            color: white;
+        }
     </style>
 
 
@@ -205,6 +319,34 @@
         <a href="index.html" class="map-button">
             <img src="images/white_back_button.png" alt="back">
         </a>
+
+        <button class="settings-button" onclick="openListSettingMenu()">
+            <img src="images/settings-button.png" alt="settings">
+        </button>
+
+        <h2 id="version-text" style="color: white; left: 0px;"></h2>
+
+        <div id="list-settings-popup" class="list-settings-popup">
+            <h1 class=" select-date">Settings</h1>
+            <br>
+            <br>
+            <div class="switch-container">
+
+                <label class="switch">
+                    <input type="checkbox" id="magnitude-toggle">>
+                    <span class="slider"></span>
+                </label>
+
+                <h6 class="checkbox-text">Only Show 2.5 and Greater</h6>
+
+            </div>
+            <br>
+            <button onclick="submitMag()">Submit</button>
+            <br>
+            <br>
+            <button onclick="closeListSettingMenu()">Close</button>
+
+        </div>
     </main>
     <header class="top-frame">
 
@@ -218,17 +360,34 @@
     </header>
 
 
+    <script src="script.js"></script>
+    <script src="config.js"></script>
+
     <script>
-        // Your JavaScript stays here
+        document.getElementById("version-text").textContent = `V-${WEB_VERSION}`
+        function submitMag() {
+            const toggle = document.getElementById("magnitude-toggle");
+
+            if (toggle.checked) {
+                minimumMagnitude = 2.5;
+            } else {
+                minimumMagnitude = 2;
+            }
+
+            closeListSettingMenu();
+            loadEarthquakes();
+        }
     </script>
 
-    <h1>Earthquakes Today</h1>
+    <h1 class="today">Earthquakes Today</h1>
 
 
 
     <div id="earthquake-list">
         Loading earthquakes...
     </div>
+
+    <script src="config.js"></script>
 
     <script>
         const now = new Date();
@@ -239,6 +398,7 @@
 
         const end = new Date();
         const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+        let minimumMagnitude = 2
 
         async function loadEarthquakes() {
             const earthquakeList = document.getElementById("earthquake-list");
@@ -248,7 +408,7 @@
                     `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson` +
                     `&starttime=${start.toISOString()}` +
                     `&endtime=${end.toISOString()}` +
-                    `&minmagnitude=2` +
+                    `&minmagnitude=${minimumMagnitude}` +
                     `&orderby=time` +
                     `&limit=20000`
                 );
