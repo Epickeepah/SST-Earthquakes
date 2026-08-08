@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake Details</title>
+
+    <style>
+        .top-frame {
+            width: 100%;
+            height: 100px;
+
+            display: flex;
+            align-items: center;
+
+            position: relative;
+
+            padding: 0 25px;
+
+            box-sizing: border-box;
+
+            background-color: #504f4f;
+        }
+
+        /* Logo */
+        .Logo {
+            position: relative;
+            left: 0px;
+            width: 70px;
+            height: 70px;
+
+            object-fit: contain;
+        }
+
+        /* SST MAPS name */
+        .site-name {
+            position: relative;
+            margin-left: 15px;
+
+            color: white;
+        }
+
+        .site-name h1 {
+            position: relative;
+            margin: 0;
+
+            text-align: left;
+
+            font-size: 30px;
+        }
+
+        .site-name p {
+            position: relative;
+            margin: 3px 0 0;
+
+            color: #d0d0d0;
+
+            font-size: 15px;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            background-color: #504f4f;
+            font-family: Arial, sans-serif;
+            color: #030303;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .top-controls {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            right: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            z-index: 1000;
+        }
+
+        .left-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .version {
+            color: white;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .map-button {
+
+            width: 35px;
+            height: 35px;
+
+            border: none;
+            border-radius: 4px;
+            background: rgb(48, 51, 54);
+            padding: 0;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .map-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 650px) {
+            .top-frame {
+                height: 80px;
+                padding: 20px;
+            }
+
+            .Logo {
+                left: 20px;
+                width: 55px;
+                height: 55px;
+                transform: translate(-35px, 30px);
+            }
+
+            .site-name {
+                left: 5px;
+                margin-left: 10px;
+                transform: translate(-35px, 30px);
+            }
+
+            .site-name h1 {
+                left: 5px;
+                font-size: 22px;
+            }
+
+            .site-name p {
+                left: 5px;
+                font-size: 12px;
+            }
+
+            .Version {
+                top: 8px;
+                right: 12px;
+
+                font-size: 11px;
+            }
+
+            body {
+                padding: 12px;
+            }
+
+            .earthquake {
+                grid-template-columns: 75px 1fr;
+            }
+
+            .magnitude {
+                font-size: 23px;
+            }
+
+            .location {
+                font-size: 16px;
+            }
+
+            .time {
+                grid-column: 2;
+                text-align: left;
+                margin-top: 8px;
+                font-size: 13px;
+            }
+
+            .map-button,
+            .settings-button {
+                width: 30px;
+                height: 30px;
+            }
+
+            .version {
+                font-size: 12px;
+            }
+
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1 style="color: red; width: 500px; height: 30px;">Details Coming Soon</h1>
+        <div class="top-controls">
+
+            <div class="left-buttons">
+
+                <a href="earthquakes-list.html" class="map-button">
+                    <img src="images/white_back_button.png" alt="back">
+                </a>
+
+            </div>
+
+            <h2 id="version-text" class="version"></h2>
+
+        </div>
+    </main>
+    <header class="top-frame">
+
+        <img src="images/logo.PNG" alt="SST Maps Logo" class="Logo">
+
+        <div class="site-name">
+            <h1>SST MAPS</h1>
+            <p>Earthquake Monitoring</p>
+        </div>
+
+    </header>
+
+
+    <script src="script.js"></script>
+    <script src="config.js"></script>
+</body>

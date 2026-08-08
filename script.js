@@ -8,8 +8,12 @@ function closeCalendarMenu() {
 }
 
 function openSettingsMenu() {
-    console.log("Menu Button Clicked")
-    document.getElementById("settings-popup").style.display = "block"
+    console.log("Menu Button Clicked");
+
+    document.getElementById("settings-popup").style.display = "block";
+
+    // Show current magnitude in dropdown
+    document.getElementById("mag-select").value = minimumMagnitude.toFixed(1);
 }
 
 function closeSettingsMenu() {
@@ -105,3 +109,12 @@ currentDateCheck.addEventListener("change", function () {
 
 });
 
+function showEarthquakeDetails(quake) {
+
+    localStorage.setItem(
+        "selectedEarthquake",
+        JSON.stringify(quake)
+    );
+
+    window.location.href = "earthquake-details.html";
+}

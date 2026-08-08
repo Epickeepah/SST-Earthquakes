@@ -1,1 +1,1 @@
-const WEB_VERSION = "2.2.12"
+const WEB_VERSION = "2.3.0"

@@ -4,7 +4,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earthquake List</title>
+    <title>Earthquake Details</title>
 
     <style>
         /* Top header */
@@ -213,7 +213,7 @@
             transform: translateX(-50%);
 
             width: 400px;
-            height: 300px;
+            height: 220px;
 
             padding: 30px;
 
@@ -254,6 +254,7 @@
             display: inline-block;
             width: 50px;
             height: 28px;
+            transform: translateY(-20px);
         }
 
         .switch input {
@@ -297,7 +298,7 @@
         }
 
         input:checked+.slider::before {
-            transform: translateX(22px);
+            transform: translateX(25px);
         }
 
         .switch-container {
@@ -309,6 +310,7 @@
         .checkbox-text {
             margin: 0;
             font-size: 14px;
+            transform: translateY(-20px);
         }
 
         .today {
@@ -344,6 +346,41 @@
             top: 0;
             left: 0;
             width: 100%;
+        }
+
+        .button-group {
+            position: absolute;
+
+            bottom: 20px;
+            width: 85%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .button-group button {
+            height: 30px;
+            width: 150px;
+            padding: 0 25px;
+            font-size: 16px;
+        }
+
+        .divider {
+            font-size: 25px;
+            color: white;
+        }
+
+        .location {
+            font-size: 19px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+        }
+
+        .location:hover {
+            color: blue;
         }
     </style>
 
@@ -386,11 +423,11 @@
 
             </div>
             <br>
-            <button onclick="submitMag()">Submit</button>
-            <br>
-            <br>
-            <button onclick="closeListSettingMenu()">Close</button>
-
+            <div class="button-group">
+                <button onclick="submitMag()" style="color: green;">Submit</button>
+                <span class="divider">|</span>
+                <button onclick="closeListSettingMenu()" style="color: red;">Close</button>
+            </div>
         </div>
     </main>
     <header class="top-frame">
@@ -497,17 +534,17 @@
                         M ${magnitude.toFixed(1)}
                     </div>
 
-                    <div>
-                        <div class="location">
-                            ${location}
-                        </div>
+<div>
+    <div class="location" onclick='showEarthquakeDetails(${JSON.stringify(quake)})'>
+        ${location}
+    </div>
 
-                        <div class="details">
-                            Depth: ${depth} km<br>
-                            Latitude: ${latitude.toFixed(2)} |
-                            Longitude: ${longitude.toFixed(2)}
-                        </div>
-                    </div>
+    <div class="details">
+        Depth: ${depth} km<br>
+        Latitude: ${latitude.toFixed(2)} |
+        Longitude: ${longitude.toFixed(2)}
+    </div>
+</div>
 
                     <div class="time">
                         ${time.toLocaleString()}
