@@ -213,7 +213,7 @@
             transform: translateX(-50%);
 
             width: 400px;
-            height: 220px;
+            height: 265px;
 
             padding: 30px;
 
@@ -301,6 +301,13 @@
             transform: translateX(25px);
         }
 
+        .settings-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+
         .switch-container {
             display: flex;
             align-items: center;
@@ -382,6 +389,47 @@
         .location:hover {
             color: blue;
         }
+
+        .earthquake-links {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quake-badge {
+            width: 60px;
+            height: 42px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-decoration: none;
+            color: black;
+
+            border-radius: 2px;
+            font-family: Arial, sans-serif;
+        }
+
+        .roman {
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 14px;
+        }
+
+        .badge-title {
+            font-size: 11px;
+            line-height: 12px;
+        }
+
+        .dyfi {
+            background-color: #7acb82;
+        }
+
+        .shakemap {
+            background-color: #ffff00;
+        }
     </style>
 
 
@@ -412,15 +460,30 @@
             <h1 class=" select-date">Settings</h1>
             <br>
             <br>
-            <div class="switch-container">
+            <div class="settings-options">
 
-                <label class="switch">
-                    <input type="checkbox" id="magnitude-toggle">>
-                    <span class="slider"></span>
+                <label class="switch-container">
+
+                    <label class="switch">
+                        <input type="checkbox" id="magnitude-toggle">
+                        <span class="slider"></span>
+                    </label>
+
+                    <h6 class="checkbox-text">Show All Earthquakes</h6>
+
                 </label>
 
-                <h6 class="checkbox-text">Show All Earthquakes</h6>
 
+                <label class="switch-container">
+
+                    <label class="switch">
+                        <input type="checkbox" id="date-change">
+                        <span class="slider"></span>
+                    </label>
+
+                    <h6 class="checkbox-text">Show Past 30 Days</h6>
+
+                </label>
             </div>
             <br>
             <div class="button-group">
@@ -448,12 +511,33 @@
     <script>
         document.getElementById("version-text").textContent = `V-${WEB_VERSION}`
         function submitMag() {
-            const toggle = document.getElementById("magnitude-toggle");
+            const quakeToggle = document.getElementById("magnitude-toggle");
+            const dateToggle = document.getElementById("date-change")
 
-            if (toggle.checked) {
-                minimumMagnitude = 2;
+            if (quakeToggle.checked) {
+                minimumMagnitude = 1;
             } else {
                 minimumMagnitude = 2.5;
+            }
+
+            if (dateToggle.checked) {
+
+                // Past 30 days
+                end = new Date();
+
+                start = new Date();
+                start.setDate(start.getDate() - 30);
+                console.log("test")
+
+            } else {
+
+                // Back to past 24 hours
+                end = new Date();
+
+                start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+                console.log("test")
+
             }
 
             closeListSettingMenu();
@@ -478,8 +562,8 @@
         const month = String(now.getMonth() + 1).padStart(2, "0");
         const day = String(now.getDate()).padStart(2, "0");
 
-        const end = new Date();
-        const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+        let end = new Date();
+        let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
         let minimumMagnitude = 2.5
 
         async function loadEarthquakes() {
@@ -496,6 +580,7 @@
                 );
 
                 const earthquakes = await response.json();
+                console.log(earthquakes.features[0]);
 
                 earthquakeList.innerHTML = "";
 
@@ -508,6 +593,7 @@
 
                 for (let i = 0; i < earthquakes.features.length; i++) {
                     const quake = earthquakes.features[i];
+                    console.log(JSON.stringify(quake.properties.products, null, 2));
 
                     const longitude = quake.geometry.coordinates[0];
                     const latitude = quake.geometry.coordinates[1];
@@ -516,6 +602,33 @@
                     const magnitude = quake.properties.mag;
                     const location = quake.properties.place;
                     const time = new Date(quake.properties.time);
+
+                    // ADD THIS HERE
+                    const products = {};
+
+                    console.log(location, magnitude, products);
+
+                    let badges = "";
+
+                    // DYFI check
+                    if (products.dyfi) {
+                        badges += `
+        <a href="#" class="quake-badge dyfi">
+            <span class="roman">VI</span>
+            <span class="badge-title">DYFI</span>
+        </a>`;
+                    }
+
+
+                    // ShakeMap check
+                    if (products.shakemap) {
+                        badges += `
+        <a href="#" class="quake-badge shakemap">
+            <span class="roman">VI</span>
+            <span class="badge-title">ShakeMap</span>
+        </a>`;
+                    }
+
 
                     const earthquakeBox = document.createElement("div");
 
@@ -529,7 +642,10 @@
 
                     earthquakeBox.className = "earthquake";
 
+
+
                     earthquakeBox.innerHTML = `
+                    
                     <div class="magnitude" style="margin:0; color:${titleColor};">
                         M ${magnitude.toFixed(1)}
                     </div>
@@ -544,6 +660,12 @@
         Latitude: ${latitude.toFixed(2)} |
         Longitude: ${longitude.toFixed(2)}
     </div>
+
+<div class="earthquake-links">
+    ${badges}
+</div>
+
+</div>
 </div>
 
                     <div class="time">
@@ -552,7 +674,11 @@
                 `;
 
                     earthquakeList.appendChild(earthquakeBox);
+
+
                 }
+
+
 
             } catch (error) {
                 console.error(error);
