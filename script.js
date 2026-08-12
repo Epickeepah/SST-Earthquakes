@@ -30,6 +30,20 @@ function closeListSettingMenu() {
 }
 
 function openListDetailsMenu(quake) {
+
+    const longitude = quake.geometry.coordinates[0];
+    const latitude = quake.geometry.coordinates[1];
+    const depth = quake.geometry.coordinates[2];
+
+    const magnitude = quake.properties.mag;
+    const location = quake.properties.place;
+    const time = new Date(quake.properties.time);
+
+    document.getElementById("quake-name").textContent = location
+    document.getElementById("mag").textContent = `Magnitude: ${magnitude}`
+    document.getElementById("depth").textContent = `Depth: ${depth}`
+    document.getElementById("lat-long").textContent = `Latitude: ${latitude}, Longitude ${longitude}`
+    document.getElementById("time").textContent = `Time: ${time}`
     document.querySelector(".more-details-popup")
         .classList.add("show");
 }

@@ -221,7 +221,7 @@
             transform: translateX(-50%);
 
             width: 400px;
-            height: 265px;
+            height: 320px;
 
             padding: 30px;
 
@@ -447,7 +447,7 @@
 
             width: 400px;
             max-width: 90vw;
-            height: 265px;
+            height: 330px;
 
             padding: 30px;
 
@@ -548,6 +548,17 @@
                     <h6 class="checkbox-text">Show Past 30 Days</h6>
 
                 </label>
+
+                <label class="switch-container">
+
+                    <label class="switch">
+                        <input type="checkbox" id="lat-long-change">
+                        <span class="slider"></span>
+                    </label>
+
+                    <h6 class="checkbox-text">Show Longitude and Lagitude</h6>
+
+                </label>
             </div>
             <br>
             <div class="button-group">
@@ -557,7 +568,11 @@
             </div>
         </div>
         <div id="more-details-popup" class="more-details-popup">
-            <h1 style="color: red;">Details Coming Soon</h1>
+            <h1 id="quake-name" style="font-size: 20px; ;"></h1>
+            <p id="mag"></p>
+            <p id="depth"></p>
+            <p id="lat-long"></p>
+            <p id="time"></p>
             <div class=" button-group">
                 <button onclick="openMap(quake)">Map</button>
                 <span class="divider">|</span>
@@ -587,6 +602,7 @@
         function submitMag() {
             const quakeToggle = document.getElementById("magnitude-toggle");
             const dateToggle = document.getElementById("date-change")
+            const latLongChangeToggle = document.getElementById("lat-long-change")
 
             if (quakeToggle.checked) {
                 minimumMagnitude = 1;
@@ -614,6 +630,12 @@
 
             }
 
+            if (latLongChangeToggle.checked) {
+                showLatLong = false;
+            } else {
+                showLatLong = true;
+            }
+
             closeListSettingMenu();
             loadEarthquakes();
         }
@@ -637,6 +659,7 @@
         let end = new Date();
         let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
         let minimumMagnitude = 2.5
+        let showLatLong = true
 
         async function getDYFI(dyfiProduct) {
 
@@ -705,6 +728,7 @@
                         titleColor = "orange"
                     }
 
+
                     earthquakeBox.className = "earthquake";
 
 
@@ -719,11 +743,15 @@
         ${location}
     </div>
 
-    <div class="details">
-        Depth: ${depth} km<br>
-        Latitude: ${latitude.toFixed(2)} |
-        Longitude: ${longitude.toFixed(2)}
-    </div>
+<div class="details">
+    Depth: ${depth} km<br>
+    ${showLatLong === false ?
+                            `Latitude: ${latitude.toFixed(2)} |
+     Longitude: ${longitude.toFixed(2)}`
+                            : ""}
+</div>
+
+</div>
 
 
 </div>
@@ -738,8 +766,6 @@
 
 
                 }
-
-
 
             } catch (error) {
                 console.error(error);
