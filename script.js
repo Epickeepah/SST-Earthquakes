@@ -29,6 +29,18 @@ function closeListSettingMenu() {
     document.getElementById("list-settings-popup").style.display = "none";
 }
 
+function openListDetailsMenu(quake) {
+    document.querySelector(".more-details-popup")
+        .classList.add("show");
+}
+
+function closeListDetailsMenu() {
+    const popup = document.querySelector(".more-details-popup");
+
+    popup.classList.remove("show");
+}
+
+
 function toggleDays() {
     const list = document.getElementById("dayList");
 

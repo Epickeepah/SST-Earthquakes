@@ -181,6 +181,14 @@
                 font-size: 12px;
             }
 
+            .more-details-popup {
+                width: 95vw;
+                height: auto;
+                min-height: 265px;
+                padding: 20px;
+                border-radius: 12px 12px 0 0;
+            }
+
 
 
         }
@@ -430,6 +438,62 @@
         .shakemap {
             background-color: #ffff00;
         }
+
+        .more-details-popup {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 100%);
+
+            width: 400px;
+            max-width: 90vw;
+            height: 265px;
+
+            padding: 30px;
+
+            background: rgb(48, 51, 54);
+            color: white;
+
+            border: 2px solid #666;
+            border-radius: 12px;
+
+            z-index: 2000;
+
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+
+            opacity: 0;
+            transition: transform 0.35s ease, opacity 0.35s ease;
+
+            pointer-events: none;
+        }
+
+        .more-details-popup.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+            pointer-events: auto;
+        }
+
+        .quake-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .quake-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 6px 12px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+            font-size: 14px;
+            transform: translateY(-20px);
+        }
     </style>
 
 
@@ -490,6 +554,16 @@
                 <button onclick="submitMag()" style="color: green;">Submit</button>
                 <span class="divider">|</span>
                 <button onclick="closeListSettingMenu()" style="color: red;">Close</button>
+            </div>
+        </div>
+        <div id="more-details-popup" class="more-details-popup">
+            <h1 style="color: red;">Details Coming Soon</h1>
+            <div class=" button-group">
+                <button onclick="openMap(quake)">Map</button>
+                <span class="divider">|</span>
+                <button onclick="showEarthquakeDetails()" style="color: green;">More</button>
+                <span class="divider">|</span>
+                <button onclick="closeListDetailsMenu()" style="color: red;">Close</button>
             </div>
         </div>
     </main>
@@ -553,8 +627,6 @@
         Loading earthquakes...
     </div>
 
-    <script src="config.js"></script>
-
     <script>
         const now = new Date();
 
@@ -565,6 +637,16 @@
         let end = new Date();
         let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
         let minimumMagnitude = 2.5
+
+        async function getDYFI(dyfiProduct) {
+
+            const url =
+                dyfiProduct.contents["dyfi_geo_1km.geojson"].url;
+
+            const response = await fetch(url);
+
+            return await response.json();
+        }
 
         async function loadEarthquakes() {
             const earthquakeList = document.getElementById("earthquake-list");
@@ -592,8 +674,8 @@
                 }
 
                 for (let i = 0; i < earthquakes.features.length; i++) {
+
                     const quake = earthquakes.features[i];
-                    console.log(JSON.stringify(quake.properties.products, null, 2));
 
                     const longitude = quake.geometry.coordinates[0];
                     const latitude = quake.geometry.coordinates[1];
@@ -603,34 +685,17 @@
                     const location = quake.properties.place;
                     const time = new Date(quake.properties.time);
 
-                    // ADD THIS HERE
-                    const products = {};
-
-                    console.log(location, magnitude, products);
-
-                    let badges = "";
-
-                    // DYFI check
-                    if (products.dyfi) {
-                        badges += `
-        <a href="#" class="quake-badge dyfi">
-            <span class="roman">VI</span>
-            <span class="badge-title">DYFI</span>
-        </a>`;
-                    }
-
-
-                    // ShakeMap check
-                    if (products.shakemap) {
-                        badges += `
-        <a href="#" class="quake-badge shakemap">
-            <span class="roman">VI</span>
-            <span class="badge-title">ShakeMap</span>
-        </a>`;
-                    }
-
 
                     const earthquakeBox = document.createElement("div");
+
+                    earthquakeBox.className = "earthquake";
+
+                    earthquakeBox.onclick = () => {
+                        console.log("CLICKED", quake);
+                        openListDetailsMenu(quake);
+                    };
+
+
 
                     let titleColor = "green";
 
@@ -643,7 +708,6 @@
                     earthquakeBox.className = "earthquake";
 
 
-
                     earthquakeBox.innerHTML = `
                     
                     <div class="magnitude" style="margin:0; color:${titleColor};">
@@ -651,7 +715,7 @@
                     </div>
 
 <div>
-    <div class="location" onclick='showEarthquakeDetails(${JSON.stringify(quake)})'>
+    <div class="location" onclick='openListDetailsMenu(${JSON.stringify(quake)})'>
         ${location}
     </div>
 
@@ -661,9 +725,6 @@
         Longitude: ${longitude.toFixed(2)}
     </div>
 
-<div class="earthquake-links">
-    ${badges}
-</div>
 
 </div>
 </div>
