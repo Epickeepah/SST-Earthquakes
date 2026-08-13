@@ -31,6 +31,8 @@ function closeListSettingMenu() {
 
 function openListDetailsMenu(quake) {
 
+    selectedQuake = quake;
+
     const longitude = quake.geometry.coordinates[0];
     const latitude = quake.geometry.coordinates[1];
     const depth = quake.geometry.coordinates[2];
@@ -52,6 +54,21 @@ function closeListDetailsMenu() {
     const popup = document.querySelector(".more-details-popup");
 
     popup.classList.remove("show");
+}
+
+function openMap() {
+
+    if (!selectedQuake) {
+        console.log("No earthquake selected");
+        return;
+    }
+    const id = selectedQuake.id;
+
+    const longitude = selectedQuake.geometry.coordinates[0];
+    const latitude = selectedQuake.geometry.coordinates[1];
+
+    window.location.href =
+        `earthquake-map.html?lat=${latitude}&lon=${longitude}&id=${selectedQuake.id}&mag=${selectedQuake.properties.mag}&place=${encodeURIComponent(selectedQuake.properties.place)}&time=${selectedQuake.properties.time}`;
 }
 
 

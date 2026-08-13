@@ -467,6 +467,7 @@
         Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1NjM2NDFlZS1jNjhkLTQyOGMtYjI5Ny00ZTY2Mjk2YTk1YjUiLCJpZCI6NDYzOTIyLCJzdWIiOiJlcGlja2VlcGFoIiwiaXNzIjoiaHR0cHM6Ly9hcGkuY2VzaXVtLmNvbSIsImF1ZCI6IlNTVCBNYXBzIFdlYnNpdGUiLCJpYXQiOjE3ODU5MDQ3OTh9.ztQvfEjmKm1eyLFcD8iqnIc4ZK_HGH_n4HEuHWP99_M";
 
         const viewer = new Cesium.Viewer("cesiumContainer", {
+
             terrain: Cesium.Terrain.fromWorldTerrain(),
 
             animation: false,        // removes bottom left clock/play controls
@@ -486,6 +487,25 @@
                 20000000
             )
         });
+
+        const params = new URLSearchParams(window.location.search);
+
+        const quakeLat = params.get("lat");
+        const quakeLon = params.get("lon");
+
+        if (quakeLat && quakeLon) {
+
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(
+                    Number(quakeLon),
+                    Number(quakeLat),
+                    500000
+                )
+            });
+
+
+
+        }
 
         const now = new Date();
 
@@ -565,6 +585,7 @@
 
 
                     viewer.entities.add({
+                        id: quake.id,
 
                         position: Cesium.Cartesian3.fromDegrees(
                             longitude,
@@ -610,6 +631,127 @@
         `
                     });
                 };
+                const quakeID = params.get("id");
+
+                if (quakeID) {
+
+                    const entity = viewer.entities.getById(quakeID);
+
+                    if (entity) {
+
+                        viewer.selectedEntity = entity;
+
+                        const position = entity.position.getValue(
+                            Cesium.JulianDate.now()
+                        );
+
+                        const cartographic = Cesium.Cartographic.fromCartesian(position);
+
+                        viewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromRadians(
+                                cartographic.longitude,
+                                cartographic.latitude,
+                                500000
+                            )
+                        });
+
+                    } else {
+
+                        console.log("Earthquake entity not found, creating marker");
+
+                        const params = new URLSearchParams(window.location.search);
+
+                        const latitude = Number(params.get("lat"));
+                        const longitude = Number(params.get("lon"));
+
+                        const magnitude = Number(params.get("mag"));
+                        const place = params.get("place");
+                        const time = new Date(Number(params.get("time")));
+
+                        let dotSize = 10;
+                        let dotColor = Cesium.Color.GREEN;
+                        let titleColor = "green";
+
+
+                        if (magnitude >= 6) {
+
+                            let newDotSize = magnitude * 8
+                            dotSize = newDotSize;
+                            dotColor = Cesium.Color.RED;
+                            titleColor = "red"
+
+                        } else if (magnitude >= 4 && magnitude < 5.9) {
+                            let newDotSize = magnitude * 6
+                            dotSize = newDotSize;
+                            dotColor = Cesium.Color.ORANGE;
+                            titleColor = "orange"
+                        }
+
+                        const newEntity = viewer.entities.add({
+
+
+
+                            id: quakeID,
+
+                            position: Cesium.Cartesian3.fromDegrees(
+                                longitude,
+                                latitude,
+                                2000
+                            ),
+
+                            point: {
+                                pixelSize: dotSize,
+                                color: dotColor
+                            },
+
+
+                            description: `
+        <div style="
+            font-family: Arial;
+            padding: 10px;
+            width: 200px;
+        ">
+
+        <h2 style="margin:0; color:${titleColor};">
+        🌎 Earthquake
+        </h2>
+
+        <hr>
+
+        <b>Magnitude:</b> ${magnitude}<br>
+
+        <b>Location:</b><br>
+        ${place}<br><br>
+
+        <b>Time:</b><br>
+        ${time.toLocaleString()}
+
+        <button onclick="showDetails('${quakeID}')"
+        style="
+        border-radius: 8px;
+        margin-top: 10px;
+        ">
+            More Details
+        </button>
+
+        </div>
+        `
+                        });
+
+
+                        viewer.selectedEntity = newEntity;
+
+
+                        viewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(
+                                longitude,
+                                latitude,
+                                500000
+                            )
+                        });
+
+                    }
+                }
                 document.getElementById("loading-screen").style.display = "none";
             } catch (error) {
                 console.error("Earthquake loading failed:", error);
@@ -619,6 +761,7 @@
             }
         }
 
+
         let earthquakesLoaded = false;
 
         viewer.scene.globe.tileLoadProgressEvent.addEventListener(function (tilesLoading) {
@@ -626,6 +769,8 @@
             if (tilesLoading === 0 && !earthquakesLoaded) {
 
                 earthquakesLoaded = true;
+
+
                 loadEarthquakes();
 
             }

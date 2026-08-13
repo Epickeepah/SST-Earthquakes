@@ -574,7 +574,7 @@
             <p id="lat-long"></p>
             <p id="time"></p>
             <div class=" button-group">
-                <button onclick="openMap(quake)">Map</button>
+                <button onclick="openMap()">Map</button>
                 <span class="divider">|</span>
                 <button onclick="showEarthquakeDetails()" style="color: green;">More</button>
                 <span class="divider">|</span>
@@ -660,6 +660,7 @@
         let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
         let minimumMagnitude = 2.5
         let showLatLong = true
+        let selectedQuake = null;
 
         async function getDYFI(dyfiProduct) {
 
@@ -715,6 +716,9 @@
 
                     earthquakeBox.onclick = () => {
                         console.log("CLICKED", quake);
+
+                        selectedQuake = quake;
+
                         openListDetailsMenu(quake);
                     };
 
