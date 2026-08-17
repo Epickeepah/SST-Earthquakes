@@ -71,6 +71,22 @@ function openMap() {
         `earthquake-map.html?lat=${latitude}&lon=${longitude}&id=${selectedQuake.id}&mag=${selectedQuake.properties.mag}&place=${encodeURIComponent(selectedQuake.properties.place)}&time=${selectedQuake.properties.time}`;
 }
 
+function openDetialsFile() {
+    if (!selectedQuake) {
+        console.log("No earthquake selected");
+        return;
+    }
+    const id = selectedQuake.id;
+
+    const longitude = selectedQuake.geometry.coordinates[0];
+    const latitude = selectedQuake.geometry.coordinates[1];
+
+
+    window.location.href =
+        `earthquake-details.html?lat=${latitude}&lon=${longitude}&id=${selectedQuake.id}&mag=${selectedQuake.properties.mag}&place=${encodeURIComponent(selectedQuake.properties.place)}&time=${selectedQuake.properties.time}&radius=50000`;
+
+}
+
 
 function toggleDays() {
     const list = document.getElementById("dayList");
@@ -151,13 +167,3 @@ currentDateCheck.addEventListener("change", function () {
     }
 
 });
-
-function showEarthquakeDetails(quake) {
-
-    localStorage.setItem(
-        "selectedEarthquake",
-        JSON.stringify(quake)
-    );
-
-    window.location.href = "earthquake-details.html";
-}

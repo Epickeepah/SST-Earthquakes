@@ -17,7 +17,7 @@
 
             position: relative;
 
-            padding: 0 25px;
+            padding: 25px;
 
             box-sizing: border-box;
 
@@ -221,7 +221,7 @@
             transform: translateX(-50%);
 
             width: 400px;
-            height: 320px;
+            height: 345px;
 
             padding: 30px;
 
@@ -552,6 +552,17 @@
                 <label class="switch-container">
 
                     <label class="switch">
+                        <input type="checkbox" id="km-change">
+                        <span class="slider"></span>
+                    </label>
+
+                    <h6 class="checkbox-text">Show Depth in Kilometers</h6>
+
+                </label>
+
+                <label class="switch-container">
+
+                    <label class="switch">
                         <input type="checkbox" id="lat-long-change">
                         <span class="slider"></span>
                     </label>
@@ -576,7 +587,7 @@
             <div class=" button-group">
                 <button onclick="openMap()">Map</button>
                 <span class="divider">|</span>
-                <button onclick="showEarthquakeDetails()" style="color: green;">More</button>
+                <button onclick="openDetialsFile()" style="color: green;">More</button>
                 <span class="divider">|</span>
                 <button onclick="closeListDetailsMenu()" style="color: red;">Close</button>
             </div>
@@ -601,8 +612,9 @@
         document.getElementById("version-text").textContent = `V-${WEB_VERSION}`
         function submitMag() {
             const quakeToggle = document.getElementById("magnitude-toggle");
-            const dateToggle = document.getElementById("date-change")
-            const latLongChangeToggle = document.getElementById("lat-long-change")
+            const dateToggle = document.getElementById("date-change");
+            const kmChange = document.getElementById("km-change");
+            const latLongChangeToggle = document.getElementById("lat-long-change");
 
             if (quakeToggle.checked) {
                 minimumMagnitude = 1;
@@ -628,6 +640,12 @@
 
                 console.log("test")
 
+            }
+
+            if (kmChange.checked) {
+                useKilometers = true;
+            } else {
+                useKilometers = false;
             }
 
             if (latLongChangeToggle.checked) {
@@ -658,8 +676,9 @@
 
         let end = new Date();
         let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-        let minimumMagnitude = 2.5
-        let showLatLong = true
+        let minimumMagnitude = 2.5;
+        let showLatLong = true;
+        let useKilometers = false;
         let selectedQuake = null;
 
         async function getDYFI(dyfiProduct) {
@@ -703,7 +722,11 @@
 
                     const longitude = quake.geometry.coordinates[0];
                     const latitude = quake.geometry.coordinates[1];
-                    const depth = quake.geometry.coordinates[2];
+                    let depth = quake.geometry.coordinates[2];
+
+                    if (!useKilometers) {
+                        depth = depth * 0.621371;
+                    }
 
                     const magnitude = quake.properties.mag;
                     const location = quake.properties.place;
@@ -748,7 +771,7 @@
     </div>
 
 <div class="details">
-    Depth: ${depth} km<br>
+    Depth: ${depth.toFixed(2)} ${useKilometers ? "km" : "miles"}<br>
     ${showLatLong === false ?
                             `Latitude: ${latitude.toFixed(2)} |
      Longitude: ${longitude.toFixed(2)}`
