@@ -447,7 +447,7 @@
 
             width: 400px;
             max-width: 90vw;
-            height: 330px;
+            height: 450px;
 
             padding: 30px;
 
@@ -580,10 +580,13 @@
         </div>
         <div id="more-details-popup" class="more-details-popup">
             <h1 id="quake-name" style="font-size: 20px; ;"></h1>
+            <p id="quake-id"></p>
             <p id="mag"></p>
             <p id="depth"></p>
             <p id="lat-long"></p>
             <p id="time"></p>
+            <p id="dyfi-mmi"></p>
+            <p id="dyfi-reports"></p>
             <div class=" button-group">
                 <button onclick="openMap()">Map</button>
                 <span class="divider">|</span>
@@ -704,6 +707,7 @@
                     `&limit=20000`
                 );
 
+
                 const earthquakes = await response.json();
                 console.log(earthquakes.features[0]);
 
@@ -767,7 +771,7 @@
 
 <div>
     <div class="location" onclick='openListDetailsMenu(${JSON.stringify(quake)})'>
-        ${location}
+        ${location}, ID: ${quake.id}
     </div>
 
 <div class="details">
