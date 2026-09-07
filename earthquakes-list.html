@@ -123,7 +123,6 @@
         border-radius: 4px;
 
         font-family: "Times New Roman", serif;
-        font-weight: bold;
         font-size: 20px;
         font-weight: bold;
         color: black;
@@ -689,7 +688,6 @@
       async function getDYFI(quake) {
         try {
           const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
-
           const response = await fetch(url);
 
           if (!response.ok) {
@@ -760,6 +758,7 @@
           return {
             mmi: maxMMI,
             color: color,
+            reports: Number(dyfiProduct.properties?.numResp ?? 0),
             product: dyfiProduct,
             geojson: dyfiGeoJson,
           };
@@ -770,6 +769,8 @@
       }
 
       function dyfiMarks(count) {
+        count = Math.round(count);
+
         if (count >= 10) {
           return "X+";
         }
