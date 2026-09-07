@@ -102,10 +102,33 @@
             font-weight: bold;
         }
 
-        .details {
-            margin-top: 6px;
-            color: #666;
-        }
+.details {
+    margin-top: 6px;
+    color: #666;
+}
+
+.depth-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.green-square {
+    width: 35px;
+    height: 35px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 4px;
+
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+
+    flex-shrink: 0;
+}
 
         .time {
             text-align: right;
@@ -494,6 +517,7 @@
             font-size: 14px;
             transform: translateY(-20px);
         }
+
     </style>
 
 
@@ -684,15 +708,93 @@
         let useKilometers = false;
         let selectedQuake = null;
 
-        async function getDYFI(dyfiProduct) {
+async function getDYFI(quake) {
+    try {
+        const url =
+            `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
 
-            const url =
-                dyfiProduct.contents["dyfi_geo_1km.geojson"].url;
+        const response = await fetch(url);
 
-            const response = await fetch(url);
-
-            return await response.json();
+        if (!response.ok) {
+            return null;
         }
+
+        const data = await response.json();
+
+        const dyfiProduct =
+            data.properties?.products?.dyfi?.[0];
+
+        if (!dyfiProduct) {
+            return null;
+        }
+
+        const geoJsonFile =
+            dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
+
+        if (!geoJsonFile?.url) {
+            return null;
+        }
+
+        const dyfiResponse = await fetch(geoJsonFile.url);
+
+        if (!dyfiResponse.ok) {
+            return null;
+        }
+
+        const dyfiGeoJson = await dyfiResponse.json();
+
+        // Get the highest MMI found in the DYFI grid
+        let maxMMI = null;
+
+        for (const feature of dyfiGeoJson.features || []) {
+            const properties = feature.properties || {};
+
+            const possibleMMI = Number(
+                properties.cdi ??
+                properties.mmi ??
+                properties.MMI
+            );
+
+            if (!isNaN(possibleMMI)) {
+                if (maxMMI === null || possibleMMI > maxMMI) {
+                    maxMMI = possibleMMI;
+                }
+            }
+        }
+
+        // No usable MMI
+        if (maxMMI === null) {
+            return null;
+        }
+
+        let color;
+
+        if (maxMMI <= 2) {
+            color = "#00b050";
+        } else if (maxMMI <= 4) {
+            color = "#9acd32";
+        } else if (maxMMI <= 5) {
+            color = "#ffff00";
+        } else if (maxMMI <= 6) {
+            color = "#ff9900";
+        } else if (maxMMI <= 8) {
+            color = "#ff0000";
+        } else {
+            color = "#000000";
+        }
+
+        return {
+            mmi: maxMMI,
+            color: color,
+            product: dyfiProduct,
+            geojson: dyfiGeoJson
+        };
+
+    } catch (error) {
+        console.warn(`DYFI failed for ${quake.id}`, error);
+        return null;
+    }
+}
 
         async function loadEarthquakes() {
             const earthquakeList = document.getElementById("earthquake-list");
@@ -724,6 +826,33 @@
 
                     const quake = earthquakes.features[i];
 
+                    let dyfiData = null;
+
+try {
+
+    dyfiData = await getDYFI(quake);
+
+} catch (error) {
+
+    console.warn(
+        `Could not check DYFI for ${quake.id}`,
+        error
+    );
+
+}
+
+const hasDYFI = dyfiData !== null;
+const dyfiColor = dyfiData?.color || "transparent";
+
+console.log(
+    quake.id,
+    "Has DYFI:",
+    hasDYFI,
+    "MMI:",
+    dyfiData?.mmi,
+    "Color:",
+    dyfiColor
+);
                     const longitude = quake.geometry.coordinates[0];
                     const latitude = quake.geometry.coordinates[1];
                     let depth = quake.geometry.coordinates[2];
@@ -764,33 +893,44 @@
 
 
                     earthquakeBox.innerHTML = `
-                    
-                    <div class="magnitude" style="margin:0; color:${titleColor};">
-                        M ${magnitude.toFixed(1)}
-                    </div>
-
-<div>
-    <div class="location" onclick='openListDetailsMenu(${JSON.stringify(quake)})'>
-        ${location}, ID: ${quake.id}
+    <div class="magnitude" style="margin:0; color:${titleColor};">
+        M ${magnitude.toFixed(1)}
     </div>
 
+    <div>
+        <div class="location">
+            ${location}, ID: ${quake.id}
+        </div>
+
 <div class="details">
-    Depth: ${depth.toFixed(2)} ${useKilometers ? "km" : "miles"}<br>
+
+    <div class="depth-row">
+        Depth: ${depth.toFixed(2)} ${useKilometers ? "km" : "miles"},
+
+        ${hasDYFI ? `
+        <span>DYFI: </span>
+            <div
+                class="green-square"
+                style="background-color: ${dyfiColor};"
+            >
+                ${dyfiData.mmi}
+            </div>
+        ` : ""}
+    </div>
+
     ${showLatLong === false ?
-                            `Latitude: ${latitude.toFixed(2)} |
-     Longitude: ${longitude.toFixed(2)}`
-                            : ""}
-</div>
+        `<div>
+            Latitude: ${latitude.toFixed(2)} |
+            Longitude: ${longitude.toFixed(2)}
+        </div>`
+        : ""}
 
 </div>
+    </div>
 
-
-</div>
-</div>
-
-                    <div class="time">
-                        ${time.toLocaleString()}
-                    </div>
+    <div class="time">
+        ${time.toLocaleString()}
+    </div>
                 `;
 
                     earthquakeList.appendChild(earthquakeBox);
