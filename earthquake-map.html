@@ -1,461 +1,454 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cesium Earth</title>
 
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link
+      href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
 
     <style>
-        html,
-        body,
-        #cesiumContainer {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-        }
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
 
-        .map-button {
-            position: absolute;
-            top: 8px;
-            left: 10px;
+      .map-button {
+        position: absolute;
+        top: 8px;
+        left: 10px;
 
-            width: 35px;
-            height: 35px;
+        width: 35px;
+        height: 35px;
 
-            border: none;
-            border-radius: 4px;
-            background: rgb(48, 51, 54);
-            padding: 0;
-            cursor: pointer;
-            z-index: 1000;
-        }
+        border: none;
+        border-radius: 4px;
+        background: rgb(48, 51, 54);
+        padding: 0;
+        cursor: pointer;
+        z-index: 1000;
+      }
 
-        .map-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+      .map-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
+      .calendar-button {
+        position: absolute;
+        top: 8px;
+        margin-left: 50px;
 
-        .calendar-button {
-            position: absolute;
-            top: 8px;
-            margin-left: 50px;
+        width: 35px;
+        height: 35px;
 
-            width: 35px;
-            height: 35px;
+        border: none;
+        border-radius: 4px;
+        background: rgb(48, 51, 54);
+        padding: 0;
+        cursor: pointer;
+        z-index: 1000;
+      }
 
-            border: none;
-            border-radius: 4px;
-            background: rgb(48, 51, 54);
-            padding: 0;
-            cursor: pointer;
-            z-index: 1000;
-        }
+      .calendar-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
-        .calendar-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+      .settings-button {
+        position: absolute;
+        top: 8px;
+        margin-left: 90px;
+        width: 35px;
+        height: 35px;
 
-        .settings-button {
-            position: absolute;
-            top: 8px;
-            margin-left: 90px;
-            width: 35px;
-            height: 35px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        background: rgb(48, 51, 54);
+        padding: 0;
+        cursor: pointer;
+        z-index: 1000;
+      }
 
-            border: none;
-            background: transparent;
-            border-radius: 4px;
-            background: rgb(48, 51, 54);
-            padding: 0;
-            cursor: pointer;
-            z-index: 1000;
-        }
+      .settings-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
-        .settings-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+      .popup {
+        display: none;
 
-        }
+        position: fixed;
+        top: 0px;
+        left: 50%;
+        transform: translateX(-50%);
 
-        .popup {
-            display: none;
+        max-width: 425px;
+        height: 350px;
+        padding: 20px;
 
-            position: fixed;
-            top: 0px;
-            left: 50%;
-            transform: translateX(-50%);
+        background: rgb(48, 51, 54);
+        color: white;
 
-            max-width: 425px;
-            height: 350px;
-            padding: 20px;
+        border: 2px solid #666;
+        border-radius: 12px;
 
-            background: rgb(48, 51, 54);
-            color: white;
+        z-index: 2000;
 
-            border: 2px solid #666;
-            border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+      }
 
-            z-index: 2000;
+      .day-list {
+        display: none;
 
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-        }
+        max-height: 150px;
+        overflow-y: auto;
 
-        .day-list {
-            display: none;
+        background: rgb(254, 254, 255);
+        color: rgb(0, 0, 0);
 
-            max-height: 150px;
-            overflow-y: auto;
+        width: 50px;
+        border-radius: 8px;
+      }
 
-            background: rgb(254, 254, 255);
-            color: rgb(0, 0, 0);
+      .day-list div {
+        padding: 8px;
+      }
 
-            width: 50px;
-            border-radius: 8px;
-        }
+      .select-date {
+        top: 0px;
+        left: 0px;
+      }
 
-        .day-list div {
-            padding: 8px;
-        }
+      .date-header {
+        display: flex;
+        gap: 200px;
+      }
 
-        .select-date {
-            top: 0px;
-            left: 0px;
-        }
+      .current-date-container {
+        position: absolute;
+        bottom: 30px;
+        left: 5px;
 
-        .date-header {
-            display: flex;
-            gap: 200px;
-        }
+        display: flex;
+        align-items: center;
+        gap: 10px;
 
+        color: white;
+        z-index: 3000;
+
+        font-size: clamp(12px, 3vw, 24px);
+      }
+
+      .current-date {
+        margin: 0;
+      }
+
+      @media (max-width: 500px) {
         .current-date-container {
-            position: absolute;
-            bottom: 30px;
-            left: 5px;
-
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            color: white;
-            z-index: 3000;
-
-            font-size: clamp(12px, 3vw, 24px);
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          gap: 5px;
         }
 
         .current-date {
-            margin: 0;
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .popup {
+          width: 85%;
+          max-height: 90vh;
+          overflow-y: auto;
+          padding: 15px;
         }
 
-        @media (max-width: 500px) {
-
-            .current-date-container {
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                gap: 5px;
-            }
-
-            .current-date {
-                font-size: 16px;
-            }
-
-        }
-
-        @media (max-width: 500px) {
-
-            .popup {
-                width: 85%;
-                max-height: 90vh;
-                overflow-y: auto;
-                padding: 15px;
-            }
-
-            .select-date {
-                font-size: 28px;
-            }
-
-            .date-container {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .date-group {
-                width: 100%;
-            }
-
-            .date-header {
-                display: block;
-            }
-
-            .date-header h2 {
-                margin: 5px 0;
-                font-size: 22px;
-            }
-
-            label {
-                display: inline-block;
-                width: 60px;
-                font-size: 14px;
-                white-space: nowrap;
-            }
-
-            select {
-                max-width: calc(100% - 70px);
-                font-size: 14px;
-            }
-
-            .button-group {
-                position: relative;
-                bottom: auto;
-
-                margin-top: 30px;
-
-                width: 100%;
-
-                transform: translateY(110px);
-            }
-
-            .settings-button-group {
-                position: relative;
-                bottom: auto;
-
-                margin-top: 30px;
-
-                width: 100%;
-
-                transform: translateY(0px);
-            }
-
-            .small-text {
-                position: absolute;
-
-                bottom: 20px;
-                right: 0px;
-
-                width: auto;
-
-                font-size: 12px;
-                color: #bbb;
-
-                transform: none;
-            }
+        .select-date {
+          font-size: 28px;
         }
 
         .date-container {
-            display: flex;
-            gap: 40px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
         }
 
         .date-group {
-            width: 220px;
+          width: 100%;
         }
 
-        #loading-screen {
-            display: none;
-
-            position: fixed;
-            top: 0;
-            left: 0;
-
-            width: 100%;
-            height: 100%;
-
-            background: rgba(0, 0, 0, 0.6);
-
-            color: white;
-
-            z-index: 5000;
-
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-
-            font-size: 20px;
+        .date-header {
+          display: block;
         }
 
-
-        .loader {
-            width: 40px;
-            height: 40px;
-
-            border: 5px solid white;
-            border-top: 5px solid transparent;
-
-            border-radius: 50%;
-
-            animation: spin 1s linear infinite;
+        .date-header h2 {
+          margin: 5px 0;
+          font-size: 22px;
         }
 
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+        label {
+          display: inline-block;
+          width: 60px;
+          font-size: 14px;
+          white-space: nowrap;
         }
 
-        .settings-popup {
-            display: none;
-
-            position: fixed;
-            top: 0px;
-            left: 50%;
-            transform: translateX(-50%);
-
-            width: 400px;
-            height: 220px;
-
-            padding: 30px;
-
-            background: rgb(48, 51, 54);
-            color: white;
-
-            border: 2px solid #666;
-            border-radius: 12px;
-
-            z-index: 2000;
-
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-        }
-
-        .small-text {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-
-            font-size: 12px;
-            color: #bbb;
-            transform: translate(-40px, -50px);
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-
-            background-color: #777;
-            border-radius: 28px;
-
-            transition: 0.3s;
-        }
-
-        .slider::before {
-            content: "";
-
-            position: absolute;
-            height: 22px;
-            width: 22px;
-
-            left: 3px;
-            bottom: 3px;
-
-            background-color: white;
-            border-radius: 50%;
-
-            transition: 0.3s;
-        }
-
-        input:checked+.slider {
-            background-color: #2196f3;
-        }
-
-        input:checked+.slider::before {
-            transform: translateX(22px);
-        }
-
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(-20px);
-        }
-
-        .checkbox-text {
-            margin: 0;
-            font-size: 14px;
+        select {
+          max-width: calc(100% - 70px);
+          font-size: 14px;
         }
 
         .button-group {
-            position: absolute;
+          position: relative;
+          bottom: auto;
 
-            bottom: 20px;
-            width: 85%;
+          margin-top: 30px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+          width: 100%;
+
+          transform: translateY(110px);
         }
 
         .settings-button-group {
-            position: absolute;
+          position: relative;
+          bottom: auto;
 
-            bottom: 20px;
-            width: 85%;
+          margin-top: 30px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+          width: 100%;
+
+          transform: translateY(0px);
         }
 
-        .settings-button-group button {
-            height: 30px;
-            width: 150px;
-            padding: 0 25px;
-            font-size: 16px;
+        .small-text {
+          position: absolute;
+
+          bottom: 20px;
+          right: 0px;
+
+          width: auto;
+
+          font-size: 12px;
+          color: #bbb;
+
+          transform: none;
+        }
+      }
+
+      .date-container {
+        display: flex;
+        gap: 40px;
+      }
+
+      .date-group {
+        width: 220px;
+      }
+
+      #loading-screen {
+        display: none;
+
+        position: fixed;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: rgba(0, 0, 0, 0.6);
+
+        color: white;
+
+        z-index: 5000;
+
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        font-size: 20px;
+      }
+
+      .loader {
+        width: 40px;
+        height: 40px;
+
+        border: 5px solid white;
+        border-top: 5px solid transparent;
+
+        border-radius: 50%;
+
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
         }
 
-        .button-group button {
-            height: 30px;
-            width: 150px;
-            padding: 0 25px;
-            font-size: 16px;
+        to {
+          transform: rotate(360deg);
         }
+      }
 
-        .divider {
-            font-size: 25px;
-            color: white;
-        }
+      .settings-popup {
+        display: none;
+
+        position: fixed;
+        top: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        width: 400px;
+        height: 220px;
+
+        padding: 30px;
+
+        background: rgb(48, 51, 54);
+        color: white;
+
+        border: 2px solid #666;
+        border-radius: 12px;
+
+        z-index: 2000;
+
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+      }
+
+      .small-text {
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+
+        font-size: 12px;
+        color: #bbb;
+        transform: translate(-40px, -50px);
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        background-color: #777;
+        border-radius: 28px;
+
+        transition: 0.3s;
+      }
+
+      .slider::before {
+        content: "";
+
+        position: absolute;
+        height: 22px;
+        width: 22px;
+
+        left: 3px;
+        bottom: 3px;
+
+        background-color: white;
+        border-radius: 50%;
+
+        transition: 0.3s;
+      }
+
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
+
+      input:checked + .slider::before {
+        transform: translateX(22px);
+      }
+
+      .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(-20px);
+      }
+
+      .checkbox-text {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .button-group {
+        position: absolute;
+
+        bottom: 20px;
+        width: 85%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .settings-button-group {
+        position: absolute;
+
+        bottom: 20px;
+        width: 85%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .settings-button-group button {
+        height: 30px;
+        width: 150px;
+        padding: 0 25px;
+        font-size: 16px;
+      }
+
+      .button-group button {
+        height: 30px;
+        width: 150px;
+        padding: 0 25px;
+        font-size: 16px;
+      }
+
+      .divider {
+        font-size: 25px;
+        color: white;
+      }
     </style>
+  </head>
 
-</head>
-
-<body>
-
+  <body>
     <div id="loading-screen">
-        <div class="loader"></div>
-        <p>Loading Earthquakes...</p>
+      <div class="loader"></div>
+      <p>Loading Earthquakes...</p>
     </div>
 
     <div id="cesiumContainer"></div>
@@ -463,143 +456,133 @@
     <script src="config.js"></script>
 
     <script>
+      Cesium.Ion.defaultAccessToken =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1NjM2NDFlZS1jNjhkLTQyOGMtYjI5Ny00ZTY2Mjk2YTk1YjUiLCJpZCI6NDYzOTIyLCJzdWIiOiJlcGlja2VlcGFoIiwiaXNzIjoiaHR0cHM6Ly9hcGkuY2VzaXVtLmNvbSIsImF1ZCI6IlNTVCBNYXBzIFdlYnNpdGUiLCJpYXQiOjE3ODU5MDQ3OTh9.ztQvfEjmKm1eyLFcD8iqnIc4ZK_HGH_n4HEuHWP99_M";
 
-        Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1NjM2NDFlZS1jNjhkLTQyOGMtYjI5Ny00ZTY2Mjk2YTk1YjUiLCJpZCI6NDYzOTIyLCJzdWIiOiJlcGlja2VlcGFoIiwiaXNzIjoiaHR0cHM6Ly9hcGkuY2VzaXVtLmNvbSIsImF1ZCI6IlNTVCBNYXBzIFdlYnNpdGUiLCJpYXQiOjE3ODU5MDQ3OTh9.ztQvfEjmKm1eyLFcD8iqnIc4ZK_HGH_n4HEuHWP99_M";
+      const viewer = new Cesium.Viewer("cesiumContainer", {
+        terrain: Cesium.Terrain.fromWorldTerrain(),
 
-        const viewer = new Cesium.Viewer("cesiumContainer", {
+        animation: false, // removes bottom left clock/play controls
+        timeline: false, // removes bottom timeline
+        geocoder: true, // removes search button
+        homeButton: true, // removes home button
+        sceneModePicker: true, // removes globe/2D button
+        baseLayerPicker: true, // removes imagery button
+        navigationHelpButton: false, // removes ? button
+      });
 
-            terrain: Cesium.Terrain.fromWorldTerrain(),
+      // Force camera to Earth
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000),
+      });
 
-            animation: false,        // removes bottom left clock/play controls
-            timeline: false,         // removes bottom timeline
-            geocoder: true,         // removes search button
-            homeButton: true,       // removes home button
-            sceneModePicker: true,  // removes globe/2D button
-            baseLayerPicker: true,  // removes imagery button
-            navigationHelpButton: false // removes ? button
-        });
+      const params = new URLSearchParams(window.location.search);
 
-        // Force camera to Earth
+      const quakeLat = params.get("lat");
+      const quakeLon = params.get("lon");
+
+      if (quakeLat && quakeLon) {
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-                0,
-                0,
-                20000000
-            )
+          destination: Cesium.Cartesian3.fromDegrees(
+            Number(quakeLon),
+            Number(quakeLat),
+            500000,
+          ),
         });
+      }
 
-        const params = new URLSearchParams(window.location.search);
+      const now = new Date();
 
-        const quakeLat = params.get("lat");
-        const quakeLon = params.get("lon");
+      // End date (today)
+      let year = now.getFullYear();
+      let month = String(now.getMonth() + 1).padStart(2, "0");
+      let day = String(now.getDate()).padStart(2, "0");
 
-        if (quakeLat && quakeLon) {
+      // Start date (default to today)
+      let start_year = year;
+      let start_month = month;
+      let start_day = String(Number(day) - 1).padStart(2, "0");
 
-            viewer.camera.flyTo({
-                destination: Cesium.Cartesian3.fromDegrees(
-                    Number(quakeLon),
-                    Number(quakeLat),
-                    500000
-                )
-            });
+      let minimumMagnitude = 2.5;
 
+      async function loadEarthquakes() {
+        const loading = document.getElementById("loading-screen");
+        loading.style.display = "flex";
 
+        try {
+          if (Number(day) === Number(start_day)) {
+            start_day = String(Number(start_day) - 1).padStart(2, "0");
+          }
 
-        }
+          viewer.entities.removeAll();
 
-        const now = new Date();
+          console.log(
+            `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=${minimumMagnitude}`,
+          );
 
-        // End date (today)
-        let year = now.getFullYear();
-        let month = String(now.getMonth() + 1).padStart(2, "0");
-        let day = String(now.getDate()).padStart(2, "0");
+          const response = await fetch(
+            `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=${minimumMagnitude}`,
+          );
 
-        // Start date (default to today)
-        let start_year = year;
-        let start_month = month;
-        let start_day = String(Number(day) - 1).padStart(2, "0");
+          document.getElementById("current-date-bottom").textContent =
+            `${start_year}-${start_month}-${start_day}`;
+          document.getElementById("current-date-top").textContent =
+            `${year}-${month}-${day}`;
+          document.getElementById("version-text").textContent =
+            `V-${WEB_VERSION}`;
+          document.getElementById("mag-text").textContent =
+            `Minimum Mag-${minimumMagnitude}`;
 
-        let minimumMagnitude = 2.5
+          const earthquakes = await response.json();
 
+          let quakeCount = 0;
 
+          for (let i = 0; i < earthquakes.features.length; i++) {
+            quakeCount++;
+            document.getElementById("quake-count").textContent =
+              `Quakes Loaded-${quakeCount}`;
 
-        async function loadEarthquakes() {
+            const quake = earthquakes.features[i];
 
-            const loading = document.getElementById("loading-screen");
-            loading.style.display = "flex";
+            let longitude = quake.geometry.coordinates[0];
+            let latitude = quake.geometry.coordinates[1];
 
-            try {
+            let groundHeight = 0;
 
+            let dotSize = 10;
+            let dotColor = Cesium.Color.GREEN;
+            let titleColor = "green";
 
-                if (Number(day) === Number(start_day)) {
-                    start_day = String(Number(start_day) - 1).padStart(2, "0");
-                }
+            if (quake.properties.mag >= 6) {
+              let newDotSize = quake.properties.mag * 8;
+              dotSize = newDotSize;
+              dotColor = Cesium.Color.RED;
+              titleColor = "red";
+            } else if (
+              quake.properties.mag >= 4 &&
+              quake.properties.mag < 5.9
+            ) {
+              let newDotSize = quake.properties.mag * 6;
+              dotSize = newDotSize;
+              dotColor = Cesium.Color.ORANGE;
+              titleColor = "orange";
+            }
 
-                viewer.entities.removeAll();
+            viewer.entities.add({
+              id: quake.id,
 
-                console.log(
-                    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=${minimumMagnitude}`
-                );
+              position: Cesium.Cartesian3.fromDegrees(
+                longitude,
+                latitude,
+                groundHeight + 2000,
+              ),
 
-                const response = await fetch(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start_year}-${start_month}-${start_day}T00:00:00&endtime=${year}-${month}-${day}T23:59:59&minmagnitude=${minimumMagnitude}`)
+              point: {
+                pixelSize: dotSize,
+                color: dotColor,
+              },
 
-
-                document.getElementById("current-date-bottom").textContent = `${start_year}-${start_month}-${start_day}`;
-                document.getElementById("current-date-top").textContent = `${year}-${month}-${day}`;
-                document.getElementById("version-text").textContent = `V-${WEB_VERSION}`
-                document.getElementById("mag-text").textContent = `Minimum Mag-${minimumMagnitude}`
-
-
-                const earthquakes = await response.json();
-
-                let quakeCount = 0
-
-                for (let i = 0; i < earthquakes.features.length; i++) {
-                    quakeCount++;
-                    document.getElementById("quake-count").textContent = `Quakes Loaded-${quakeCount}`
-
-                    const quake = earthquakes.features[i];
-
-                    let longitude = quake.geometry.coordinates[0];
-                    let latitude = quake.geometry.coordinates[1];
-
-                    let groundHeight = 0;
-
-                    let dotSize = 10;
-                    let dotColor = Cesium.Color.GREEN;
-                    let titleColor = "green";
-
-
-                    if (quake.properties.mag >= 6) {
-
-                        let newDotSize = quake.properties.mag * 8
-                        dotSize = newDotSize;
-                        dotColor = Cesium.Color.RED;
-                        titleColor = "red"
-
-                    } else if (quake.properties.mag >= 4 && quake.properties.mag < 5.9) {
-                        let newDotSize = quake.properties.mag * 6
-                        dotSize = newDotSize;
-                        dotColor = Cesium.Color.ORANGE;
-                        titleColor = "orange"
-                    }
-
-
-                    viewer.entities.add({
-                        id: quake.id,
-
-                        position: Cesium.Cartesian3.fromDegrees(
-                            longitude,
-                            latitude,
-                            groundHeight + 2000
-                        ),
-
-                        point: {
-                            pixelSize: dotSize,
-                            color: dotColor
-                        },
-
-                        description: `
+              description: `
         <div style="
             font-family: Arial;
             padding: 10px;
@@ -629,84 +612,73 @@
         </button>
 
         </div>
-        `
-                    });
-                };
-                const quakeID = params.get("id");
+        `,
+            });
+          }
+          const quakeID = params.get("id");
 
-                if (quakeID) {
+          if (quakeID) {
+            const entity = viewer.entities.getById(quakeID);
 
-                    const entity = viewer.entities.getById(quakeID);
+            if (entity) {
+              viewer.selectedEntity = entity;
 
-                    if (entity) {
+              const position = entity.position.getValue(
+                Cesium.JulianDate.now(),
+              );
 
-                        viewer.selectedEntity = entity;
+              const cartographic = Cesium.Cartographic.fromCartesian(position);
 
-                        const position = entity.position.getValue(
-                            Cesium.JulianDate.now()
-                        );
+              viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromRadians(
+                  cartographic.longitude,
+                  cartographic.latitude,
+                  500000,
+                ),
+              });
+            } else {
+              console.log("Earthquake entity not found, creating marker");
 
-                        const cartographic = Cesium.Cartographic.fromCartesian(position);
+              const params = new URLSearchParams(window.location.search);
 
-                        viewer.camera.flyTo({
-                            destination: Cesium.Cartesian3.fromRadians(
-                                cartographic.longitude,
-                                cartographic.latitude,
-                                500000
-                            )
-                        });
+              const latitude = Number(params.get("lat"));
+              const longitude = Number(params.get("lon"));
 
-                    } else {
+              const magnitude = Number(params.get("mag"));
+              const place = params.get("place");
+              const time = new Date(Number(params.get("time")));
 
-                        console.log("Earthquake entity not found, creating marker");
+              let dotSize = 10;
+              let dotColor = Cesium.Color.GREEN;
+              let titleColor = "green";
 
-                        const params = new URLSearchParams(window.location.search);
+              if (magnitude >= 6) {
+                let newDotSize = magnitude * 8;
+                dotSize = newDotSize;
+                dotColor = Cesium.Color.RED;
+                titleColor = "red";
+              } else if (magnitude >= 4 && magnitude < 5.9) {
+                let newDotSize = magnitude * 6;
+                dotSize = newDotSize;
+                dotColor = Cesium.Color.ORANGE;
+                titleColor = "orange";
+              }
 
-                        const latitude = Number(params.get("lat"));
-                        const longitude = Number(params.get("lon"));
+              const newEntity = viewer.entities.add({
+                id: quakeID,
 
-                        const magnitude = Number(params.get("mag"));
-                        const place = params.get("place");
-                        const time = new Date(Number(params.get("time")));
+                position: Cesium.Cartesian3.fromDegrees(
+                  longitude,
+                  latitude,
+                  2000,
+                ),
 
-                        let dotSize = 10;
-                        let dotColor = Cesium.Color.GREEN;
-                        let titleColor = "green";
+                point: {
+                  pixelSize: dotSize,
+                  color: dotColor,
+                },
 
-
-                        if (magnitude >= 6) {
-
-                            let newDotSize = magnitude * 8
-                            dotSize = newDotSize;
-                            dotColor = Cesium.Color.RED;
-                            titleColor = "red"
-
-                        } else if (magnitude >= 4 && magnitude < 5.9) {
-                            let newDotSize = magnitude * 6
-                            dotSize = newDotSize;
-                            dotColor = Cesium.Color.ORANGE;
-                            titleColor = "orange"
-                        }
-
-                        const newEntity = viewer.entities.add({
-
-
-
-                            id: quakeID,
-
-                            position: Cesium.Cartesian3.fromDegrees(
-                                longitude,
-                                latitude,
-                                2000
-                            ),
-
-                            point: {
-                                pixelSize: dotSize,
-                                color: dotColor
-                            },
-
-
-                            description: `
+                description: `
         <div style="
             font-family: Arial;
             padding: 10px;
@@ -736,411 +708,393 @@
         </button>
 
         </div>
-        `
-                        });
+        `,
+              });
 
+              viewer.selectedEntity = newEntity;
 
-                        viewer.selectedEntity = newEntity;
-
-
-                        viewer.camera.flyTo({
-                            destination: Cesium.Cartesian3.fromDegrees(
-                                longitude,
-                                latitude,
-                                500000
-                            )
-                        });
-
-                    }
-                }
-                document.getElementById("loading-screen").style.display = "none";
-            } catch (error) {
-                console.error("Earthquake loading failed:", error);
-
-            } finally {
-                loading.style.display = "none";
+              viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(
+                  longitude,
+                  latitude,
+                  500000,
+                ),
+              });
             }
+          }
+          document.getElementById("loading-screen").style.display = "none";
+        } catch (error) {
+          console.error("Earthquake loading failed:", error);
+        } finally {
+          loading.style.display = "none";
         }
+      }
 
+      let earthquakesLoaded = false;
 
-        let earthquakesLoaded = false;
+      viewer.scene.globe.tileLoadProgressEvent.addEventListener(
+        function (tilesLoading) {
+          if (tilesLoading === 0 && !earthquakesLoaded) {
+            earthquakesLoaded = true;
 
-        viewer.scene.globe.tileLoadProgressEvent.addEventListener(function (tilesLoading) {
-
-            if (tilesLoading === 0 && !earthquakesLoaded) {
-
-                earthquakesLoaded = true;
-
-
-                loadEarthquakes();
-
-            }
-
-        });
-
-        function submitDate() {
-            let new_start_day = document.getElementById("day").value.padStart(2, "0");
-            let new_start_month = document.getElementById("month").value.padStart(2, "0");
-            let new_start_year = document.getElementById("year").value;
-
-            let new_day = document.getElementById("end-day").value.padStart(2, "0");
-            let new_month = document.getElementById("end-month").value.padStart(2, "0");
-            let new_year = document.getElementById("end-year").value;
-
-
-            const start = new Date(
-                Number(new_start_year),
-                Number(new_start_month) - 1,
-                Number(new_start_day)
-            );
-
-            const end = new Date(
-                Number(new_year),
-                Number(new_month) - 1,
-                Number(new_day)
-            );
-
-
-            if (start.getTime() > end.getTime()) {
-                document.getElementById("loading-screen").style.display = "none";
-                alert("Start date cannot be after end date.");
-                return;
-            }
-
-
-
-            start_day = new_start_day;
-            start_month = new_start_month;
-            start_year = new_start_year;
-
-            day = new_day;
-            month = new_month;
-            year = new_year;
-
-
-            viewer.entities.removeAll();
             loadEarthquakes();
+          }
+        },
+      );
 
-            closeCalendarMenu();
-            quakeCount = 0
+      function submitDate() {
+        let new_start_day = document
+          .getElementById("day")
+          .value.padStart(2, "0");
+        let new_start_month = document
+          .getElementById("month")
+          .value.padStart(2, "0");
+        let new_start_year = document.getElementById("year").value;
+
+        let new_day = document.getElementById("end-day").value.padStart(2, "0");
+        let new_month = document
+          .getElementById("end-month")
+          .value.padStart(2, "0");
+        let new_year = document.getElementById("end-year").value;
+
+        const start = new Date(
+          Number(new_start_year),
+          Number(new_start_month) - 1,
+          Number(new_start_day),
+        );
+
+        const end = new Date(
+          Number(new_year),
+          Number(new_month) - 1,
+          Number(new_day),
+        );
+
+        if (start.getTime() > end.getTime()) {
+          document.getElementById("loading-screen").style.display = "none";
+          alert("Start date cannot be after end date.");
+          return;
         }
 
-        function submitMag() {
-            const magSelect = document.getElementById("mag-select");
+        start_day = new_start_day;
+        start_month = new_start_month;
+        start_year = new_start_year;
 
-            minimumMagnitude = Number(magSelect.value);
+        day = new_day;
+        month = new_month;
+        year = new_year;
 
-            console.log("Minimum magnitude set to:", minimumMagnitude);
+        viewer.entities.removeAll();
+        loadEarthquakes();
 
-            closeSettingsMenu();
-            quakeCount = 0
-            loadEarthquakes();
-        }
+        closeCalendarMenu();
+        quakeCount = 0;
+      }
 
-        window.onload = function () {
+      function submitMag() {
+        const magSelect = document.getElementById("mag-select");
 
-            const now = new Date();
+        minimumMagnitude = Number(magSelect.value);
 
-            let currentYear = now.getFullYear();
-            let currentMonth = now.getMonth() + 1;
-            let currentDay = now.getDate();
+        console.log("Minimum magnitude set to:", minimumMagnitude);
 
-            document.getElementById("end-day").value = currentDay;
-            document.getElementById("end-month").value = currentMonth;
-            document.getElementById("end-year").value = currentYear;
+        closeSettingsMenu();
+        quakeCount = 0;
+        loadEarthquakes();
+      }
 
-        };
+      window.onload = function () {
+        const now = new Date();
 
+        let currentYear = now.getFullYear();
+        let currentMonth = now.getMonth() + 1;
+        let currentDay = now.getDate();
 
+        document.getElementById("end-day").value = currentDay;
+        document.getElementById("end-month").value = currentMonth;
+        document.getElementById("end-year").value = currentYear;
+      };
     </script>
 
     <script src="config.js"></script>
 
-
     <main>
-        <a href="index.html" class="map-button">
-            <img src="images/white_back_button.png" alt="back">
-        </a>
-        <button class="calendar-button" onclick="openCalendarMenu()">
-            <img src="images/white_calendar.png" alt="calendar">
-        </button>
-        <button class="settings-button" onclick="openSettingsMenu()">
-            <img src="images/settings-button.png" alt="settings">
-        </button>
+      <a href="index.html" class="map-button">
+        <img src="images/white_back_button.png" alt="back" />
+      </a>
+      <button class="calendar-button" onclick="openCalendarMenu()">
+        <img src="images/white_calendar.png" alt="calendar" />
+      </button>
+      <button class="settings-button" onclick="openSettingsMenu()">
+        <img src="images/settings-button.png" alt="settings" />
+      </button>
 
-        <div class="current-date-container">
+      <div class="current-date-container">
+        <h2 id="current-date-bottom" class="current-date"></h2>
 
-            <h2 id="current-date-bottom" class="current-date"></h2>
+        <h2 class="current-date">-</h2>
 
-            <h2 class="current-date">-</h2>
+        <h2 id="current-date-top" class="current-date"></h2>
 
-            <h2 id="current-date-top" class="current-date"></h2>
+        <h2 class="current-date">-</h2>
 
-            <h2 class="current-date">-</h2>
+        <h2 id="version-text" class="current-date"></h2>
 
-            <h2 id="version-text" class="current-date"></h2>
+        <h2 class="current-date">-</h2>
 
-            <h2 class="current-date">-</h2>
+        <h2 id="mag-text" class="current-date"></h2>
 
-            <h2 id="mag-text" class="current-date"></h2>
+        <h2 class="current-date">-</h2>
 
-            <h2 class="current-date">-</h2>
-
-            <h2 id="quake-count" class="current-date"></h2>
-
-        </div>
+        <h2 id="quake-count" class="current-date"></h2>
+      </div>
     </main>
 
-
     <div id="popup" class="popup">
-        <h1 class="select-date">Select Date</h1>
+      <h1 class="select-date">Select Date</h1>
 
-        <section class="date-container">
+      <section class="date-container">
+        <section class="date-group">
+          <div class="date-header">
+            <h2>Start Date</h2>
+          </div>
 
-            <section class="date-group">
-                <div class="date-header">
-                    <h2>Start Date</h2>
-                </div>
+          <label for="day">Day:</label>
 
+          <select id="day">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+          </select>
+          <br />
+          <label for="month">Month:</label>
+          <select id="month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <br />
 
-                <label for="day">Day:</label>
+          <label for="year">Year:</label>
 
-                <select id="day">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="13">13</option>
-                    <option value="14">14</option>
-                    <option value="15">15</option>
-                    <option value="16">16</option>
-                    <option value="17">17</option>
-                    <option value="18">18</option>
-                    <option value="19">19</option>
-                    <option value="20">20</option>
-                    <option value="21">21</option>
-                    <option value="22">22</option>
-                    <option value="23">23</option>
-                    <option value="24">24</option>
-                    <option value="25">25</option>
-                    <option value="26">26</option>
-                    <option value="27">27</option>
-                    <option value="28">28</option>
-                    <option value="29">29</option>
-                    <option value="30">30</option>
-                    <option value="31">31</option>
-                </select>
-                <br>
-                <label for="month">Month:</label>
-                <select id="month">
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-                <br>
-
-                <label for="year">Year:</label>
-
-                <select id="year">
-                    <option value="2026">2026</option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                    <option value="2019">2019</option>
-                    <option value="2018">2018</option>
-                    <option value="2017">2017</option>
-                    <option value="2016">2016</option>
-                    <option value="2015">2015</option>
-                    <option value="2014">2014</option>
-                    <option value="2013">2013</option>
-                    <option value="2012">2012</option>
-                    <option value="2011">2011</option>
-                    <option value="2010">2010</option>
-                    <option value="2009">2009</option>
-                    <option value="2008">2008</option>
-                    <option value="2007">2007</option>
-                    <option value="2006">2006</option>
-                    <option value="2005">2005</option>
-                    <option value="2004">2004</option>
-                    <option value="2003">2003</option>
-                    <option value="2002">2002</option>
-                    <option value="2001">2001</option>
-                    <option value="2000">2000</option>
-                </select>
-
-            </section>
-
-            <section class="date-group">
-                <div class="date-header">
-                    <h2>End Date</h2>
-                </div>
-
-                <label for="end-day">Day:</label>
-
-                <select id="end-day">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="13">13</option>
-                    <option value="14">14</option>
-                    <option value="15">15</option>
-                    <option value="16">16</option>
-                    <option value="17">17</option>
-                    <option value="18">18</option>
-                    <option value="19">19</option>
-                    <option value="20">20</option>
-                    <option value="21">21</option>
-                    <option value="22">22</option>
-                    <option value="23">23</option>
-                    <option value="24">24</option>
-                    <option value="25">25</option>
-                    <option value="26">26</option>
-                    <option value="27">27</option>
-                    <option value="28">28</option>
-                    <option value="29">29</option>
-                    <option value="30">30</option>
-                    <option value="31">31</option>
-                </select>
-
-                <br>
-
-                <label for="end-month">Month:</label>
-
-                <select id="end-month">
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-
-                <br>
-
-                <label for="end-year">Year:</label>
-
-                <select id="end-year">
-                    <option value="2026">2026</option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                    <option value="2021">2021</option>
-                    <option value="2020">2020</option>
-                    <option value="2019">2019</option>
-                    <option value="2018">2018</option>
-                    <option value="2017">2017</option>
-                    <option value="2016">2016</option>
-                    <option value="2015">2015</option>
-                    <option value="2014">2014</option>
-                    <option value="2013">2013</option>
-                    <option value="2012">2012</option>
-                    <option value="2011">2011</option>
-                    <option value="2010">2010</option>
-                    <option value="2009">2009</option>
-                    <option value="2008">2008</option>
-                    <option value="2007">2007</option>
-                    <option value="2006">2006</option>
-                    <option value="2005">2005</option>
-                    <option value="2004">2004</option>
-                    <option value="2003">2003</option>
-                    <option value="2002">2002</option>
-                    <option value="2001">2001</option>
-                    <option value="2000">2000</option>
-                </select>
-            </section>
-
+          <select id="year">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2008">2008</option>
+            <option value="2007">2007</option>
+            <option value="2006">2006</option>
+            <option value="2005">2005</option>
+            <option value="2004">2004</option>
+            <option value="2003">2003</option>
+            <option value="2002">2002</option>
+            <option value="2001">2001</option>
+            <option value="2000">2000</option>
+          </select>
         </section>
-        <br>
-        <label>
-            <input type="checkbox" id="current-date-check">
-            Show Today
-        </label>
-        <br>
-        <div class="button-group">
-            <button onclick="submitDate()" style="color: green;">Submit</button>
-            <span class="divider">|</span>
-            <button onclick="closeCalendarMenu()" style="color: red;">Close</button>
-        </div>
-        <small class="small-text">The less Earthquakes Loaded <br> the ferther out the date can go</small>
+
+        <section class="date-group">
+          <div class="date-header">
+            <h2>End Date</h2>
+          </div>
+
+          <label for="end-day">Day:</label>
+
+          <select id="end-day">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+          </select>
+
+          <br />
+
+          <label for="end-month">Month:</label>
+
+          <select id="end-month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+
+          <br />
+
+          <label for="end-year">Year:</label>
+
+          <select id="end-year">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2008">2008</option>
+            <option value="2007">2007</option>
+            <option value="2006">2006</option>
+            <option value="2005">2005</option>
+            <option value="2004">2004</option>
+            <option value="2003">2003</option>
+            <option value="2002">2002</option>
+            <option value="2001">2001</option>
+            <option value="2000">2000</option>
+          </select>
+        </section>
+      </section>
+      <br />
+      <label>
+        <input type="checkbox" id="current-date-check" />
+        Show Today
+      </label>
+      <br />
+      <div class="button-group">
+        <button onclick="submitDate()" style="color: green">Submit</button>
+        <span class="divider">|</span>
+        <button onclick="closeCalendarMenu()" style="color: red">Close</button>
+      </div>
+      <small class="small-text"
+        >The less Earthquakes Loaded <br />
+        the ferther out the date can go</small
+      >
     </div>
 
     <div id="settings-popup" class="settings-popup">
-        <h1 class=" select-date">Settings</h1>
-        <br>
-        <br>
-        <div class="switch-container">
+      <h1 class="select-date">Settings</h1>
+      <br />
+      <br />
+      <div class="switch-container">
+        <select name="mag-select" id="mag-select">
+          <option value="1.0">1.0</option>
+          <option value="1.5">1.5</option>
+          <option value="2.0">2.0</option>
+          <option value="2.5">2.5</option>
+          <option value="3.0">3.0</option>
+          <option value="3.5">3.5</option>
+          <option value="4.0">4.0</option>
+          <option value="4.5">4.5</option>
+          <option value="5.0">5.0</option>
+          <option value="5.5">5.5</option>
+          <option value="6.0">6.0</option>
+          <option value="6.5">6.5</option>
+          <option value="7.0">7.0</option>
+          <option value="7.5">7.5</option>
+          <option value="8.0">8.0</option>
+          <option value="8.5">8.5</option>
+          <option value="9.0">9.0</option>
+          <option value="9.5">9.5</option>
+          <option value="10.0">10.0</option>
+        </select>
 
-            <select name="mag-select" id="mag-select">
-                <option value="1.0">1.0</option>
-                <option value="1.5">1.5</option>
-                <option value="2.0">2.0</option>
-                <option value="2.5">2.5</option>
-                <option value="3.0">3.0</option>
-                <option value="3.5">3.5</option>
-                <option value="4.0">4.0</option>
-                <option value="4.5">4.5</option>
-                <option value="5.0">5.0</option>
-                <option value="5.5">5.5</option>
-                <option value="6.0">6.0</option>
-                <option value="6.5">6.5</option>
-                <option value="7.0">7.0</option>
-                <option value="7.5">7.5</option>
-                <option value="8.0">8.0</option>
-                <option value="8.5">8.5</option>
-                <option value="9.0">9.0</option>
-                <option value="9.5">9.5</option>
-                <option value="10.0">10.0</option>
-            </select>
-
-            <h6 class="checkbox-text">Only Shows The Selected <br>Magnitude and Higher</h6>
-
-        </div>
-        <br>
-        <div class="settings-button-group">
-            <button onclick="submitMag()" style="color: green;">Submit</button>
-            <span class="divider">|</span>
-            <button onclick="closeSettingsMenu()" style="color: red;">Close</button>
-        </div>
+        <h6 class="checkbox-text">
+          Only Shows The Selected <br />Magnitude and Higher
+        </h6>
+      </div>
+      <br />
+      <div class="settings-button-group">
+        <button onclick="submitMag()" style="color: green">Submit</button>
+        <span class="divider">|</span>
+        <button onclick="closeSettingsMenu()" style="color: red">Close</button>
+      </div>
     </div>
 
     <script src="script.js"></script>
-
-</body>
-
+  </body>
 </html>

@@ -1,898 +1,851 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html lang="en">
-
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Earthquake Details</title>
 
     <style>
-        /* Top header */
+      /* Top header */
+      .top-frame {
+        width: 100%;
+        height: 100px;
+
+        display: flex;
+        align-items: center;
+
+        position: relative;
+
+        padding: 25px;
+
+        box-sizing: border-box;
+
+        background-color: #504f4f;
+      }
+
+      /* Logo */
+      .Logo {
+        position: relative;
+        left: 0px;
+        width: 70px;
+        height: 70px;
+
+        object-fit: contain;
+      }
+
+      /* SST MAPS name */
+      .site-name {
+        position: relative;
+        margin-left: 15px;
+
+        color: white;
+      }
+
+      .site-name h1 {
+        position: relative;
+        margin: 0;
+
+        text-align: left;
+
+        font-size: 30px;
+      }
+
+      .site-name p {
+        position: relative;
+        margin: 3px 0 0;
+
+        color: #d0d0d0;
+
+        font-size: 15px;
+      }
+
+      body {
+        margin: 0;
+        padding: 25px;
+        background-color: #504f4f;
+        font-family: Arial, sans-serif;
+        color: #030303;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      #earthquake-list {
+        width: min(900px, 100%);
+        margin: 25px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .earthquake {
+        display: grid;
+        grid-template-columns: 100px 1fr 180px;
+        align-items: center;
+        padding: 18px;
+        background-color: white;
+        border: 1px solid #d0d0d0;
+        border-left: 8px solid #777;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .magnitude {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .location {
+        font-size: 19px;
+        font-weight: bold;
+      }
+
+      .details {
+        margin-top: 6px;
+        color: #666;
+      }
+
+      .depth-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .green-square {
+        width: 35px;
+        height: 35px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 4px;
+
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+
+        flex-shrink: 0;
+      }
+
+      .time {
+        text-align: right;
+        color: #555;
+      }
+
+      @media (max-width: 650px) {
         .top-frame {
-            width: 100%;
-            height: 100px;
-
-            display: flex;
-            align-items: center;
-
-            position: relative;
-
-            padding: 25px;
-
-            box-sizing: border-box;
-
-            background-color: #504f4f;
+          height: 80px;
+          padding: 20px;
         }
 
-        /* Logo */
         .Logo {
-            position: relative;
-            left: 0px;
-            width: 70px;
-            height: 70px;
-
-            object-fit: contain;
+          left: 20px;
+          width: 55px;
+          height: 55px;
+          transform: translate(-35px, 30px);
         }
 
-        /* SST MAPS name */
         .site-name {
-            position: relative;
-            margin-left: 15px;
-
-            color: white;
+          left: 5px;
+          margin-left: 10px;
+          transform: translate(-35px, 30px);
         }
 
         .site-name h1 {
-            position: relative;
-            margin: 0;
-
-            text-align: left;
-
-            font-size: 30px;
+          left: 5px;
+          font-size: 22px;
         }
 
         .site-name p {
-            position: relative;
-            margin: 3px 0 0;
+          left: 5px;
+          font-size: 12px;
+        }
 
-            color: #d0d0d0;
+        .Version {
+          top: 8px;
+          right: 12px;
 
-            font-size: 15px;
+          font-size: 11px;
         }
 
         body {
-            margin: 0;
-            padding: 25px;
-            background-color: #504f4f;
-            font-family: Arial, sans-serif;
-            color: #030303;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        #earthquake-list {
-            width: min(900px, 100%);
-            margin: 25px auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+          padding: 12px;
         }
 
         .earthquake {
-            display: grid;
-            grid-template-columns: 100px 1fr 180px;
-            align-items: center;
-            padding: 18px;
-            background-color: white;
-            border: 1px solid #d0d0d0;
-            border-left: 8px solid #777;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+          grid-template-columns: 75px 1fr;
         }
 
         .magnitude {
-            font-size: 28px;
-            font-weight: bold;
+          font-size: 23px;
         }
 
         .location {
-            font-size: 19px;
-            font-weight: bold;
+          font-size: 16px;
         }
-
-.details {
-    margin-top: 6px;
-    color: #666;
-}
-
-.depth-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.green-square {
-    width: 35px;
-    height: 35px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 4px;
-
-    font-size: 20px;
-    font-weight: bold;
-    color: black;
-
-    flex-shrink: 0;
-}
 
         .time {
-            text-align: right;
-            color: #555;
+          grid-column: 2;
+          text-align: left;
+          margin-top: 8px;
+          font-size: 13px;
         }
 
-        @media (max-width: 650px) {
-            .top-frame {
-                height: 80px;
-                padding: 20px;
-            }
-
-            .Logo {
-                left: 20px;
-                width: 55px;
-                height: 55px;
-                transform: translate(-35px, 30px);
-            }
-
-            .site-name {
-                left: 5px;
-                margin-left: 10px;
-                transform: translate(-35px, 30px);
-            }
-
-            .site-name h1 {
-                left: 5px;
-                font-size: 22px;
-            }
-
-            .site-name p {
-                left: 5px;
-                font-size: 12px;
-            }
-
-            .Version {
-                top: 8px;
-                right: 12px;
-
-                font-size: 11px;
-            }
-
-            body {
-                padding: 12px;
-            }
-
-            .earthquake {
-                grid-template-columns: 75px 1fr;
-            }
-
-            .magnitude {
-                font-size: 23px;
-            }
-
-            .location {
-                font-size: 16px;
-            }
-
-            .time {
-                grid-column: 2;
-                text-align: left;
-                margin-top: 8px;
-                font-size: 13px;
-            }
-
-            .map-button,
-            .settings-button {
-                width: 30px;
-                height: 30px;
-            }
-
-            .version {
-                font-size: 12px;
-            }
-
-            .more-details-popup {
-                width: 95vw;
-                height: auto;
-                min-height: 265px;
-                padding: 20px;
-                border-radius: 12px 12px 0 0;
-            }
-
-
-
-        }
-
-        .map-button {
-
-            width: 35px;
-            height: 35px;
-
-            border: none;
-            border-radius: 4px;
-            background: rgb(48, 51, 54);
-            padding: 0;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .map-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .list-settings-popup {
-            display: none;
-
-            position: fixed;
-            top: 0px;
-            left: 50%;
-            transform: translateX(-50%);
-
-            width: 400px;
-            height: 345px;
-
-            padding: 30px;
-
-            background: rgb(48, 51, 54);
-            color: white;
-
-            border: 2px solid #666;
-            border-radius: 12px;
-
-            z-index: 2000;
-
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-        }
-
+        .map-button,
         .settings-button {
-            width: 35px;
-            height: 35px;
-
-            border: none;
-            background: transparent;
-            border-radius: 4px;
-            background: rgb(48, 51, 54);
-            padding: 0;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .settings-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-            transform: translateY(-20px);
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-
-            background-color: #777;
-            border-radius: 28px;
-
-            transition: 0.3s;
-        }
-
-        .slider::before {
-            content: "";
-
-            position: absolute;
-            height: 22px;
-            width: 22px;
-
-            left: 3px;
-            bottom: 3px;
-
-            background-color: white;
-            border-radius: 50%;
-
-            transition: 0.3s;
-        }
-
-        input:checked+.slider {
-            background-color: #2196f3;
-        }
-
-        input:checked+.slider::before {
-            transform: translateX(25px);
-        }
-
-        .settings-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-text {
-            margin: 0;
-            font-size: 14px;
-            transform: translateY(-20px);
-        }
-
-        .today {
-            color: white;
-        }
-
-        .top-controls {
-            position: absolute;
-            top: 8px;
-            left: 10px;
-            right: 10px;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            z-index: 1000;
-        }
-
-        .left-buttons {
-            display: flex;
-            gap: 10px;
+          width: 30px;
+          height: 30px;
         }
 
         .version {
-            color: white;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        main {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-        }
-
-        .button-group {
-            position: absolute;
-
-            bottom: 20px;
-            width: 85%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .button-group button {
-            height: 30px;
-            width: 150px;
-            padding: 0 25px;
-            font-size: 16px;
-        }
-
-        .divider {
-            font-size: 25px;
-            color: white;
-        }
-
-        .location {
-            font-size: 19px;
-            font-weight: bold;
-            color: black;
-            cursor: pointer;
-        }
-
-        .location:hover {
-            color: blue;
-        }
-
-        .earthquake-links {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .quake-badge {
-            width: 60px;
-            height: 42px;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            text-decoration: none;
-            color: black;
-
-            border-radius: 2px;
-            font-family: Arial, sans-serif;
-        }
-
-        .roman {
-            font-size: 13px;
-            font-weight: bold;
-            line-height: 14px;
-        }
-
-        .badge-title {
-            font-size: 11px;
-            line-height: 12px;
-        }
-
-        .dyfi {
-            background-color: #7acb82;
-        }
-
-        .shakemap {
-            background-color: #ffff00;
+          font-size: 12px;
         }
 
         .more-details-popup {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translate(-50%, 100%);
-
-            width: 400px;
-            max-width: 90vw;
-            height: 450px;
-
-            padding: 30px;
-
-            background: rgb(48, 51, 54);
-            color: white;
-
-            border: 2px solid #666;
-            border-radius: 12px;
-
-            z-index: 2000;
-
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-
-            opacity: 0;
-            transition: transform 0.35s ease, opacity 0.35s ease;
-
-            pointer-events: none;
+          width: 95vw;
+          height: auto;
+          min-height: 265px;
+          padding: 20px;
+          border-radius: 12px 12px 0 0;
         }
+      }
 
-        .more-details-popup.show {
-            opacity: 1;
-            transform: translate(-50%, 0);
-            pointer-events: auto;
-        }
+      .map-button {
+        width: 35px;
+        height: 35px;
 
-        .quake-badges {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            align-items: center;
-        }
+        border: none;
+        border-radius: 4px;
+        background: rgb(48, 51, 54);
+        padding: 0;
+        cursor: pointer;
+        z-index: 1000;
+      }
 
-        .quake-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+      .map-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
-            padding: 6px 12px;
+      .list-settings-popup {
+        display: none;
 
-            border-radius: 8px;
+        position: fixed;
+        top: 0px;
+        left: 50%;
+        transform: translateX(-50%);
 
-            text-decoration: none;
-            font-size: 14px;
-            transform: translateY(-20px);
-        }
+        width: 400px;
+        height: 345px;
 
+        padding: 30px;
+
+        background: rgb(48, 51, 54);
+        color: white;
+
+        border: 2px solid #666;
+        border-radius: 12px;
+
+        z-index: 2000;
+
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+      }
+
+      .settings-button {
+        width: 35px;
+        height: 35px;
+
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        background: rgb(48, 51, 54);
+        padding: 0;
+        cursor: pointer;
+        z-index: 1000;
+      }
+
+      .settings-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+        transform: translateY(-20px);
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        background-color: #777;
+        border-radius: 28px;
+
+        transition: 0.3s;
+      }
+
+      .slider::before {
+        content: "";
+
+        position: absolute;
+        height: 22px;
+        width: 22px;
+
+        left: 3px;
+        bottom: 3px;
+
+        background-color: white;
+        border-radius: 50%;
+
+        transition: 0.3s;
+      }
+
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
+
+      input:checked + .slider::before {
+        transform: translateX(25px);
+      }
+
+      .settings-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .checkbox-text {
+        margin: 0;
+        font-size: 14px;
+        transform: translateY(-20px);
+      }
+
+      .today {
+        color: white;
+      }
+
+      .top-controls {
+        position: absolute;
+        top: 8px;
+        left: 10px;
+        right: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        z-index: 1000;
+      }
+
+      .left-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .version {
+        color: white;
+        font-size: 14px;
+        margin: 0;
+      }
+
+      main {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+
+      .button-group {
+        position: absolute;
+
+        bottom: 20px;
+        width: 85%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .button-group button {
+        height: 30px;
+        width: 150px;
+        padding: 0 25px;
+        font-size: 16px;
+      }
+
+      .divider {
+        font-size: 25px;
+        color: white;
+      }
+
+      .location {
+        font-size: 19px;
+        font-weight: bold;
+        color: black;
+        cursor: pointer;
+      }
+
+      .location:hover {
+        color: blue;
+      }
+
+      .earthquake-links {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .quake-badge {
+        width: 60px;
+        height: 42px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        text-decoration: none;
+        color: black;
+
+        border-radius: 2px;
+        font-family: Arial, sans-serif;
+      }
+
+      .roman {
+        font-size: 13px;
+        font-weight: bold;
+        line-height: 14px;
+      }
+
+      .badge-title {
+        font-size: 11px;
+        line-height: 12px;
+      }
+
+      .dyfi {
+        background-color: #7acb82;
+      }
+
+      .shakemap {
+        background-color: #ffff00;
+      }
+
+      .more-details-popup {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 100%);
+
+        width: 400px;
+        max-width: 90vw;
+        height: 450px;
+
+        padding: 30px;
+
+        background: rgb(48, 51, 54);
+        color: white;
+
+        border: 2px solid #666;
+        border-radius: 12px;
+
+        z-index: 2000;
+
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+
+        opacity: 0;
+        transition:
+          transform 0.35s ease,
+          opacity 0.35s ease;
+
+        pointer-events: none;
+      }
+
+      .more-details-popup.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        pointer-events: auto;
+      }
+
+      .quake-badges {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        align-items: center;
+      }
+
+      .quake-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 6px 12px;
+
+        border-radius: 8px;
+
+        text-decoration: none;
+        font-size: 14px;
+        transform: translateY(-20px);
+      }
     </style>
+  </head>
 
-
-</head>
-
-<body>
-
+  <body>
     <main>
-        <div class="top-controls">
+      <div class="top-controls">
+        <div class="left-buttons">
+          <a href="index.html" class="map-button">
+            <img src="images/white_back_button.png" alt="back" />
+          </a>
 
-            <div class="left-buttons">
-
-                <a href="index.html" class="map-button">
-                    <img src="images/white_back_button.png" alt="back">
-                </a>
-
-                <button class="settings-button" onclick="openListSettingMenu()">
-                    <img src="images/settings-button.png" alt="settings">
-                </button>
-
-            </div>
-
-            <h2 id="version-text" class="version"></h2>
-
+          <button class="settings-button" onclick="openListSettingMenu()">
+            <img src="images/settings-button.png" alt="settings" />
+          </button>
         </div>
 
-        <div id="list-settings-popup" class="list-settings-popup">
-            <h1 class=" select-date">Settings</h1>
-            <br>
-            <br>
-            <div class="settings-options">
+        <h2 id="version-text" class="version"></h2>
+      </div>
 
-                <label class="switch-container">
+      <div id="list-settings-popup" class="list-settings-popup">
+        <h1 class="select-date">Settings</h1>
+        <br />
+        <br />
+        <div class="settings-options">
+          <label class="switch-container">
+            <label class="switch">
+              <input type="checkbox" id="magnitude-toggle" />
+              <span class="slider"></span>
+            </label>
 
-                    <label class="switch">
-                        <input type="checkbox" id="magnitude-toggle">
-                        <span class="slider"></span>
-                    </label>
+            <h6 class="checkbox-text">Show All Earthquakes</h6>
+          </label>
 
-                    <h6 class="checkbox-text">Show All Earthquakes</h6>
+          <label class="switch-container">
+            <label class="switch">
+              <input type="checkbox" id="date-change" />
+              <span class="slider"></span>
+            </label>
 
-                </label>
+            <h6 class="checkbox-text">Show Past 30 Days</h6>
+          </label>
 
+          <label class="switch-container">
+            <label class="switch">
+              <input type="checkbox" id="km-change" />
+              <span class="slider"></span>
+            </label>
 
-                <label class="switch-container">
+            <h6 class="checkbox-text">Show Depth in Kilometers</h6>
+          </label>
 
-                    <label class="switch">
-                        <input type="checkbox" id="date-change">
-                        <span class="slider"></span>
-                    </label>
+          <label class="switch-container">
+            <label class="switch">
+              <input type="checkbox" id="lat-long-change" />
+              <span class="slider"></span>
+            </label>
 
-                    <h6 class="checkbox-text">Show Past 30 Days</h6>
-
-                </label>
-
-                <label class="switch-container">
-
-                    <label class="switch">
-                        <input type="checkbox" id="km-change">
-                        <span class="slider"></span>
-                    </label>
-
-                    <h6 class="checkbox-text">Show Depth in Kilometers</h6>
-
-                </label>
-
-                <label class="switch-container">
-
-                    <label class="switch">
-                        <input type="checkbox" id="lat-long-change">
-                        <span class="slider"></span>
-                    </label>
-
-                    <h6 class="checkbox-text">Show Longitude and Lagitude</h6>
-
-                </label>
-            </div>
-            <br>
-            <div class="button-group">
-                <button onclick="submitMag()" style="color: green;">Submit</button>
-                <span class="divider">|</span>
-                <button onclick="closeListSettingMenu()" style="color: red;">Close</button>
-            </div>
+            <h6 class="checkbox-text">Show Longitude and Lagitude</h6>
+          </label>
         </div>
-        <div id="more-details-popup" class="more-details-popup">
-            <h1 id="quake-name" style="font-size: 20px; ;"></h1>
-            <p id="quake-id"></p>
-            <p id="mag"></p>
-            <p id="depth"></p>
-            <p id="lat-long"></p>
-            <p id="time"></p>
-            <p id="dyfi-mmi"></p>
-            <p id="dyfi-reports"></p>
-            <div class=" button-group">
-                <button onclick="openMap()">Map</button>
-                <span class="divider">|</span>
-                <button onclick="openDetialsFile()" style="color: green;">More</button>
-                <span class="divider">|</span>
-                <button onclick="closeListDetailsMenu()" style="color: red;">Close</button>
-            </div>
+        <br />
+        <div class="button-group">
+          <button onclick="submitMag()" style="color: green">Submit</button>
+          <span class="divider">|</span>
+          <button onclick="closeListSettingMenu()" style="color: red">
+            Close
+          </button>
         </div>
+      </div>
+      <div id="more-details-popup" class="more-details-popup">
+        <h1 id="quake-name" style="font-size: 20px"></h1>
+        <p id="quake-id"></p>
+        <p id="mag"></p>
+        <p id="depth"></p>
+        <p id="lat-long"></p>
+        <p id="time"></p>
+        <p id="dyfi-mmi"></p>
+        <p id="dyfi-reports"></p>
+        <div class="button-group">
+          <button onclick="openMap()">Map</button>
+          <span class="divider">|</span>
+          <button onclick="openDetialsFile()" style="color: green">More</button>
+          <span class="divider">|</span>
+          <button onclick="closeListDetailsMenu()" style="color: red">
+            Close
+          </button>
+        </div>
+      </div>
     </main>
     <header class="top-frame">
+      <img src="images/logo.PNG" alt="SST Maps Logo" class="Logo" />
 
-        <img src="images/logo.PNG" alt="SST Maps Logo" class="Logo">
-
-        <div class="site-name">
-            <h1>SST MAPS</h1>
-            <p>Earthquake Monitoring</p>
-        </div>
-
+      <div class="site-name">
+        <h1>SST MAPS</h1>
+        <p>Earthquake Monitoring</p>
+      </div>
     </header>
-
 
     <script src="script.js"></script>
     <script src="config.js"></script>
 
     <script>
-        document.getElementById("version-text").textContent = `V-${WEB_VERSION}`
-        function submitMag() {
-            const quakeToggle = document.getElementById("magnitude-toggle");
-            const dateToggle = document.getElementById("date-change");
-            const kmChange = document.getElementById("km-change");
-            const latLongChangeToggle = document.getElementById("lat-long-change");
+      document.getElementById("version-text").textContent = `V-${WEB_VERSION}`;
+      function submitMag() {
+        const quakeToggle = document.getElementById("magnitude-toggle");
+        const dateToggle = document.getElementById("date-change");
+        const kmChange = document.getElementById("km-change");
+        const latLongChangeToggle = document.getElementById("lat-long-change");
 
-            if (quakeToggle.checked) {
-                minimumMagnitude = 1;
-            } else {
-                minimumMagnitude = 2.5;
-            }
-
-            if (dateToggle.checked) {
-
-                // Past 30 days
-                end = new Date();
-
-                start = new Date();
-                start.setDate(start.getDate() - 30);
-                console.log("test")
-
-            } else {
-
-                // Back to past 24 hours
-                end = new Date();
-
-                start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-
-                console.log("test")
-
-            }
-
-            if (kmChange.checked) {
-                useKilometers = true;
-            } else {
-                useKilometers = false;
-            }
-
-            if (latLongChangeToggle.checked) {
-                showLatLong = false;
-            } else {
-                showLatLong = true;
-            }
-
-            closeListSettingMenu();
-            loadEarthquakes();
+        if (quakeToggle.checked) {
+          minimumMagnitude = 1;
+        } else {
+          minimumMagnitude = 2.5;
         }
+
+        if (dateToggle.checked) {
+          // Past 30 days
+          end = new Date();
+
+          start = new Date();
+          start.setDate(start.getDate() - 30);
+          console.log("test");
+        } else {
+          // Back to past 24 hours
+          end = new Date();
+
+          start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+          console.log("test");
+        }
+
+        if (kmChange.checked) {
+          useKilometers = true;
+        } else {
+          useKilometers = false;
+        }
+
+        if (latLongChangeToggle.checked) {
+          showLatLong = false;
+        } else {
+          showLatLong = true;
+        }
+
+        closeListSettingMenu();
+        loadEarthquakes();
+      }
     </script>
 
     <h1 class="today">Earthquakes Today</h1>
 
-
-
-    <div id="earthquake-list">
-        Loading earthquakes...
-    </div>
+    <div id="earthquake-list">Loading earthquakes...</div>
 
     <script>
-        const now = new Date();
+      const now = new Date();
 
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
 
-        let end = new Date();
-        let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-        let minimumMagnitude = 2.5;
-        let showLatLong = true;
-        let useKilometers = false;
-        let selectedQuake = null;
+      let end = new Date();
+      let start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+      let minimumMagnitude = 2.5;
+      let showLatLong = true;
+      let useKilometers = false;
+      let selectedQuake = null;
 
-async function getDYFI(quake) {
-    try {
-        const url =
-            `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
+      async function getDYFI(quake) {
+        try {
+          const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
 
-        const response = await fetch(url);
+          const response = await fetch(url);
 
-        if (!response.ok) {
+          if (!response.ok) {
             return null;
-        }
+          }
 
-        const data = await response.json();
+          const data = await response.json();
 
-        const dyfiProduct =
-            data.properties?.products?.dyfi?.[0];
+          const dyfiProduct = data.properties?.products?.dyfi?.[0];
 
-        if (!dyfiProduct) {
+          if (!dyfiProduct) {
             return null;
-        }
+          }
 
-        const geoJsonFile =
-            dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
+          const geoJsonFile = dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
 
-        if (!geoJsonFile?.url) {
+          if (!geoJsonFile?.url) {
             return null;
-        }
+          }
 
-        const dyfiResponse = await fetch(geoJsonFile.url);
+          const dyfiResponse = await fetch(geoJsonFile.url);
 
-        if (!dyfiResponse.ok) {
+          if (!dyfiResponse.ok) {
             return null;
-        }
+          }
 
-        const dyfiGeoJson = await dyfiResponse.json();
+          const dyfiGeoJson = await dyfiResponse.json();
 
-        // Get the highest MMI found in the DYFI grid
-        let maxMMI = null;
+          // Get the highest MMI found in the DYFI grid
+          let maxMMI = null;
 
-        for (const feature of dyfiGeoJson.features || []) {
+          for (const feature of dyfiGeoJson.features || []) {
             const properties = feature.properties || {};
 
             const possibleMMI = Number(
-                properties.cdi ??
-                properties.mmi ??
-                properties.MMI
+              properties.cdi ?? properties.mmi ?? properties.MMI,
             );
 
             if (!isNaN(possibleMMI)) {
-                if (maxMMI === null || possibleMMI > maxMMI) {
-                    maxMMI = possibleMMI;
-                }
+              if (maxMMI === null || possibleMMI > maxMMI) {
+                maxMMI = possibleMMI;
+              }
             }
-        }
+          }
 
-        // No usable MMI
-        if (maxMMI === null) {
+          // No usable MMI
+          if (maxMMI === null) {
             return null;
-        }
+          }
 
-        let color;
+          let color;
 
-        if (maxMMI <= 2) {
+          if (maxMMI <= 2) {
             color = "#00b050";
-        } else if (maxMMI <= 4) {
+          } else if (maxMMI <= 4) {
             color = "#9acd32";
-        } else if (maxMMI <= 5) {
+          } else if (maxMMI <= 5) {
             color = "#ffff00";
-        } else if (maxMMI <= 6) {
+          } else if (maxMMI <= 6) {
             color = "#ff9900";
-        } else if (maxMMI <= 8) {
+          } else if (maxMMI <= 8) {
             color = "#ff0000";
-        } else {
+          } else {
             color = "#000000";
-        }
+          }
 
-        return {
+          return {
             mmi: maxMMI,
             color: color,
             product: dyfiProduct,
-            geojson: dyfiGeoJson
-        };
+            geojson: dyfiGeoJson,
+          };
+        } catch (error) {
+          console.warn(`DYFI failed for ${quake.id}`, error);
+          return null;
+        }
+      }
 
-    } catch (error) {
-        console.warn(`DYFI failed for ${quake.id}`, error);
-        return null;
-    }
-}
+      async function loadEarthquakes() {
+        const earthquakeList = document.getElementById("earthquake-list");
 
-        async function loadEarthquakes() {
-            const earthquakeList = document.getElementById("earthquake-list");
+        try {
+          const response = await fetch(
+            `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson` +
+              `&starttime=${start.toISOString()}` +
+              `&endtime=${end.toISOString()}` +
+              `&minmagnitude=${minimumMagnitude}` +
+              `&orderby=time` +
+              `&limit=20000`,
+          );
 
-            try {
-                const response = await fetch(
-                    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson` +
-                    `&starttime=${start.toISOString()}` +
-                    `&endtime=${end.toISOString()}` +
-                    `&minmagnitude=${minimumMagnitude}` +
-                    `&orderby=time` +
-                    `&limit=20000`
-                );
+          const earthquakes = await response.json();
+          console.log(earthquakes.features[0]);
 
+          earthquakeList.innerHTML = "";
 
-                const earthquakes = await response.json();
-                console.log(earthquakes.features[0]);
-
-                earthquakeList.innerHTML = "";
-
-                if (earthquakes.features.length === 0) {
-                    earthquakeList.innerHTML = `
+          if (earthquakes.features.length === 0) {
+            earthquakeList.innerHTML = `
                     <p>No magnitude 2.0 or larger earthquakes were found today.</p>
                 `;
-                    return;
-                }
+            return;
+          }
 
-                for (let i = 0; i < earthquakes.features.length; i++) {
+          for (let i = 0; i < earthquakes.features.length; i++) {
+            const quake = earthquakes.features[i];
 
-                    const quake = earthquakes.features[i];
+            let dyfiData = null;
 
-                    let dyfiData = null;
+            try {
+              dyfiData = await getDYFI(quake);
+            } catch (error) {
+              console.warn(`Could not check DYFI for ${quake.id}`, error);
+            }
 
-try {
+            const hasDYFI = dyfiData !== null;
+            const dyfiColor = dyfiData?.color || "transparent";
 
-    dyfiData = await getDYFI(quake);
+            console.log(
+              quake.id,
+              "Has DYFI:",
+              hasDYFI,
+              "MMI:",
+              dyfiData?.mmi,
+              "Color:",
+              dyfiColor,
+            );
+            const longitude = quake.geometry.coordinates[0];
+            const latitude = quake.geometry.coordinates[1];
+            let depth = quake.geometry.coordinates[2];
 
-} catch (error) {
+            if (!useKilometers) {
+              depth = depth * 0.621371;
+            }
 
-    console.warn(
-        `Could not check DYFI for ${quake.id}`,
-        error
-    );
+            const magnitude = quake.properties.mag;
+            const location = quake.properties.place;
+            const time = new Date(quake.properties.time);
 
-}
+            const earthquakeBox = document.createElement("div");
 
-const hasDYFI = dyfiData !== null;
-const dyfiColor = dyfiData?.color || "transparent";
+            earthquakeBox.className = "earthquake";
 
-console.log(
-    quake.id,
-    "Has DYFI:",
-    hasDYFI,
-    "MMI:",
-    dyfiData?.mmi,
-    "Color:",
-    dyfiColor
-);
-                    const longitude = quake.geometry.coordinates[0];
-                    const latitude = quake.geometry.coordinates[1];
-                    let depth = quake.geometry.coordinates[2];
+            earthquakeBox.onclick = () => {
+              console.log("CLICKED", quake);
 
-                    if (!useKilometers) {
-                        depth = depth * 0.621371;
-                    }
+              selectedQuake = quake;
 
-                    const magnitude = quake.properties.mag;
-                    const location = quake.properties.place;
-                    const time = new Date(quake.properties.time);
+              openListDetailsMenu(quake);
+            };
 
+            let titleColor = "green";
 
-                    const earthquakeBox = document.createElement("div");
+            if (quake.properties.mag >= 6) {
+              titleColor = "red";
+            } else if (
+              quake.properties.mag >= 4 &&
+              quake.properties.mag < 5.9
+            ) {
+              titleColor = "orange";
+            }
 
-                    earthquakeBox.className = "earthquake";
+            earthquakeBox.className = "earthquake";
 
-                    earthquakeBox.onclick = () => {
-                        console.log("CLICKED", quake);
-
-                        selectedQuake = quake;
-
-                        openListDetailsMenu(quake);
-                    };
-
-
-
-                    let titleColor = "green";
-
-                    if (quake.properties.mag >= 6) {
-                        titleColor = "red"
-                    } else if (quake.properties.mag >= 4 && quake.properties.mag < 5.9) {
-                        titleColor = "orange"
-                    }
-
-
-                    earthquakeBox.className = "earthquake";
-
-
-                    earthquakeBox.innerHTML = `
+            earthquakeBox.innerHTML = `
     <div class="magnitude" style="margin:0; color:${titleColor};">
         M ${magnitude.toFixed(1)}
     </div>
@@ -907,7 +860,9 @@ console.log(
     <div class="depth-row">
         Depth: ${depth.toFixed(2)} ${useKilometers ? "km" : "miles"},
 
-        ${hasDYFI ? `
+        ${
+          hasDYFI
+            ? `
         <span>DYFI: </span>
             <div
                 class="green-square"
@@ -915,15 +870,19 @@ console.log(
             >
                 ${dyfiData.mmi}
             </div>
-        ` : ""}
+        `
+            : ""
+        }
     </div>
 
-    ${showLatLong === false ?
-        `<div>
+    ${
+      showLatLong === false
+        ? `<div>
             Latitude: ${latitude.toFixed(2)} |
             Longitude: ${longitude.toFixed(2)}
         </div>`
-        : ""}
+        : ""
+    }
 
 </div>
     </div>
@@ -933,23 +892,18 @@ console.log(
     </div>
                 `;
 
-                    earthquakeList.appendChild(earthquakeBox);
+            earthquakeList.appendChild(earthquakeBox);
+          }
+        } catch (error) {
+          console.error(error);
 
-
-                }
-
-            } catch (error) {
-                console.error(error);
-
-                earthquakeList.innerHTML = `
+          earthquakeList.innerHTML = `
                 <p>Unable to load earthquake information.</p>
             `;
-            }
         }
+      }
 
-        loadEarthquakes();
+      loadEarthquakes();
     </script>
-
-</body>
-
+  </body>
 </html>
