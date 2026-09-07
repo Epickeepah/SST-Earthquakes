@@ -122,6 +122,8 @@
 
         border-radius: 4px;
 
+        font-family: "Times New Roman", serif;
+        font-weight: bold;
         font-size: 20px;
         font-weight: bold;
         color: black;
@@ -583,18 +585,24 @@
       </div>
       <div id="more-details-popup" class="more-details-popup">
         <h1 id="quake-name" style="font-size: 20px"></h1>
+
         <p id="quake-id"></p>
         <p id="mag"></p>
         <p id="depth"></p>
         <p id="lat-long"></p>
         <p id="time"></p>
+
         <p id="dyfi-mmi"></p>
         <p id="dyfi-reports"></p>
+
         <div class="button-group">
           <button onclick="openMap()">Map</button>
           <span class="divider">|</span>
+
           <button onclick="openDetialsFile()" style="color: green">More</button>
+
           <span class="divider">|</span>
+
           <button onclick="closeListDetailsMenu()" style="color: red">
             Close
           </button>
@@ -691,6 +699,7 @@
           const data = await response.json();
 
           const dyfiProduct = data.properties?.products?.dyfi?.[0];
+          const shakePrudoct = data.properties?.product?.[1];
 
           if (!dyfiProduct) {
             return null;
@@ -758,6 +767,30 @@
           console.warn(`DYFI failed for ${quake.id}`, error);
           return null;
         }
+      }
+
+      function dyfiMarks(count) {
+        if (count >= 10) {
+          return "X+";
+        }
+
+        const roman = [
+          { value: 9, symbol: "IX" },
+          { value: 5, symbol: "V" },
+          { value: 4, symbol: "IV" },
+          { value: 1, symbol: "I" },
+        ];
+
+        let result = "";
+
+        for (const item of roman) {
+          while (count >= item.value) {
+            result += item.symbol;
+            count -= item.value;
+          }
+        }
+
+        return result;
       }
 
       async function loadEarthquakes() {
@@ -866,9 +899,9 @@
         <span>DYFI: </span>
             <div
                 class="green-square"
-                style="background-color: ${dyfiColor};"
+                style="background-color: ${dyfiColor}"
             >
-                ${dyfiData.mmi}
+                ${dyfiMarks(dyfiData.mmi)}
             </div>
         `
             : ""

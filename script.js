@@ -29,6 +29,89 @@ function closeListSettingMenu() {
   document.getElementById("list-settings-popup").style.display = "none";
 }
 
+async function getDYFI(quake) {
+  try {
+    const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    const dyfiProduct = data.properties?.products?.dyfi?.[0];
+
+    if (!dyfiProduct) {
+      return null;
+    }
+
+    const geoJsonFile = dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
+
+    if (!geoJsonFile?.url) {
+      return null;
+    }
+
+    const dyfiResponse = await fetch(geoJsonFile.url);
+
+    if (!dyfiResponse.ok) {
+      return null;
+    }
+
+    const dyfiGeoJson = await dyfiResponse.json();
+
+    // Get the highest MMI found in the DYFI grid
+    let maxMMI = null;
+
+    for (const feature of dyfiGeoJson.features || []) {
+      const properties = feature.properties || {};
+
+      const possibleMMI = Number(
+        properties.cdi ?? properties.mmi ?? properties.MMI,
+      );
+
+      if (!isNaN(possibleMMI)) {
+        if (maxMMI === null || possibleMMI > maxMMI) {
+          maxMMI = possibleMMI;
+        }
+      }
+    }
+
+    // No usable MMI
+    if (maxMMI === null) {
+      return null;
+    }
+
+    // Determine MMI color
+    let color;
+
+    if (maxMMI <= 2) {
+      color = "#00b050";
+    } else if (maxMMI <= 4) {
+      color = "#9acd32";
+    } else if (maxMMI <= 5) {
+      color = "#ffff00";
+    } else if (maxMMI <= 6) {
+      color = "#ff9900";
+    } else if (maxMMI <= 8) {
+      color = "#ff0000";
+    } else {
+      color = "#000000";
+    }
+
+    return {
+      mmi: maxMMI,
+      color: color,
+      product: dyfiProduct,
+      geojson: dyfiGeoJson,
+    };
+  } catch (error) {
+    console.warn(`DYFI failed for ${quake.id}`, error);
+    return null;
+  }
+}
+
 async function openListDetailsMenu(quake) {
   selectedQuake = quake;
 
@@ -40,39 +123,56 @@ async function openListDetailsMenu(quake) {
   const location = quake.properties.place;
   const time = new Date(quake.properties.time);
 
+  // Basic earthquake information
   document.getElementById("quake-name").textContent = location;
   document.getElementById("mag").textContent = `Magnitude: ${magnitude}`;
+
   document.getElementById("depth").textContent = `Depth: ${depth}`;
+
   document.getElementById("lat-long").textContent =
-    `Latitude: ${latitude}, Longitude ${longitude}`;
+    `Latitude: ${latitude}, Longitude: ${longitude}`;
+
   document.getElementById("time").textContent = `Time: ${time}`;
+
   document.getElementById("quake-id").textContent = `Quake ID: ${quake.id}`;
 
-  const dyfiResponse = await fetch(
-    `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventid=${quake.id}`,
-  );
+  // Get DYFI information
+  const dyfi = await getDYFI(quake);
 
-  const dyfiData = await dyfiResponse.json();
-
-  if (dyfiData.properties.products?.dyfi) {
-    const dyfi = dyfiData.properties.products.dyfi[0];
-
+  if (dyfi) {
     console.log("Earthquake:", quake.id);
-    console.log("Max MMI:", dyfi.properties.maxmmi);
-    console.log("Responses:", dyfi.properties.numResp);
+    console.log("Max MMI:", dyfi.mmi);
 
-    document.getElementById("dyfi-mmi").textContent =
-      `Max MMI: ${dyfi.properties.maxmmi}`;
-    document.getElementById("dyfi-reports").textContent =
-      `Reports: ${dyfi.properties.numResp}`;
+    // The number of responses is stored in the DYFI product
+    const numResponses =
+      dyfi.product?.properties?.numResp ??
+      dyfi.product?.properties?.numresp ??
+      null;
+
+    console.log("Responses:", numResponses);
+
+    // MMI
+    document.getElementById("dyfi-mmi").textContent = `Max MMI: ${dyfi.mmi}`;
+
+    // MMI color
+    document.getElementById("dyfi-mmi").style.color = dyfi.color;
+
+    // Reports
+    if (numResponses !== null) {
+      document.getElementById("dyfi-reports").textContent =
+        `Reports: ${numResponses}`;
+    } else {
+      document.getElementById("dyfi-reports").textContent = "Reports: Unknown";
+    }
   } else {
     console.log("No DYFI data:", quake.id);
-    document.getElementById("dyfi-mmi").textContent =
-      `No DYFI data: ${quake.id}`;
-    document.getElementById("dyfi-reports").textContent =
-      `No DYFI data: ${quake.id}`;
+
+    document.getElementById("dyfi-mmi").textContent = "No DYFI data";
+
+    document.getElementById("dyfi-reports").textContent = "No DYFI data";
   }
 
+  // Show popup
   document.querySelector(".more-details-popup").classList.add("show");
 }
 
