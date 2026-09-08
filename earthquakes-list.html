@@ -109,7 +109,14 @@
       .depth-row {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 5px;
+      }
+
+      .green-square-case {
+        margin: 0px;
+        padding: 0px;
+        display: flex;
+        gap: 20px;
       }
 
       .green-square {
@@ -121,6 +128,27 @@
         justify-content: center;
 
         border-radius: 4px;
+
+        font-family: "Times New Roman", serif;
+        font-size: 20px;
+        font-weight: bold;
+        color: black;
+
+        flex-shrink: 0;
+      }
+
+      .green-square-popup {
+        width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0;
+        padding: 0;
+
+        border-radius: 4px;
+        background-color: #7acb82;
 
         font-family: "Times New Roman", serif;
         font-size: 20px;
@@ -303,7 +331,7 @@
         transition: 0.3s;
       }
 
-      .slider::before {
+      .slider:before {
         content: "";
 
         position: absolute;
@@ -591,7 +619,16 @@
         <p id="lat-long"></p>
         <p id="time"></p>
 
-        <p id="dyfi-mmi"></p>
+        <div class="green-square-case">
+          <p>DYFI:</p>
+          <div id="dyfi-mmi-box" class="green-square-popup">
+            <p id="dyfi-mmi"></p>
+          </div>
+
+          <div id="dyfi-mmi-box-two" class="green-square-popup">
+            <p id="dyfi-mmi-two"></p>
+          </div>
+        </div>
         <p id="dyfi-reports"></p>
 
         <div class="button-group">
@@ -741,18 +778,33 @@
 
           let color;
 
-          if (maxMMI <= 2) {
-            color = "#00b050";
-          } else if (maxMMI <= 4) {
-            color = "#9acd32";
-          } else if (maxMMI <= 5) {
+          if (maxMMI < 2) {
+            // I
+            color = "#8c8c8c";
+          } else if (maxMMI < 4) {
+            // II-III
+            color = "#a6cee3";
+          } else if (maxMMI < 5) {
+            // IV
+            color = "#00ffff";
+          } else if (maxMMI < 6) {
+            // V
+            color = "#00ff00";
+          } else if (maxMMI < 7) {
+            // VI
+            color = "#ccff00";
+          } else if (maxMMI < 8) {
+            // VII
             color = "#ffff00";
-          } else if (maxMMI <= 6) {
+          } else if (maxMMI < 9) {
+            // VIII
             color = "#ff9900";
-          } else if (maxMMI <= 8) {
+          } else if (maxMMI < 10) {
+            // IX
             color = "#ff0000";
           } else {
-            color = "#000000";
+            // X+
+            color = "#cc0000";
           }
 
           return {

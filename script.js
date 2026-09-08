@@ -86,18 +86,33 @@ async function getDYFI(quake) {
     // Determine MMI color
     let color;
 
-    if (maxMMI <= 2) {
-      color = "#00b050";
-    } else if (maxMMI <= 4) {
-      color = "#9acd32";
-    } else if (maxMMI <= 5) {
+    if (maxMMI < 2) {
+      // I
+      color = "#8c8c8c";
+    } else if (maxMMI < 4) {
+      // II-III
+      color = "#a6cee3";
+    } else if (maxMMI < 5) {
+      // IV
+      color = "#00ffff";
+    } else if (maxMMI < 6) {
+      // V
+      color = "#00ff00";
+    } else if (maxMMI < 7) {
+      // VI
+      color = "#ccff00";
+    } else if (maxMMI < 8) {
+      // VII
       color = "#ffff00";
-    } else if (maxMMI <= 6) {
+    } else if (maxMMI < 9) {
+      // VIII
       color = "#ff9900";
-    } else if (maxMMI <= 8) {
+    } else if (maxMMI < 10) {
+      // IX
       color = "#ff0000";
     } else {
-      color = "#000000";
+      // X+
+      color = "#cc0000";
     }
 
     return {
@@ -143,6 +158,30 @@ async function openListDetailsMenu(quake) {
     console.log("Earthquake:", quake.id);
     console.log("Max MMI:", dyfi.mmi);
 
+    count = Math.round(dyfi.mmi);
+    let romanNumber = "I";
+
+    if (count >= 10) {
+      romanNumber = "X+";
+    }
+
+    const roman = [
+      { value: 9, symbol: "IX" },
+      { value: 5, symbol: "V" },
+      { value: 4, symbol: "IV" },
+      { value: 1, symbol: "I" },
+    ];
+
+    let result = "";
+
+    for (const item of roman) {
+      while (count >= item.value) {
+        result += item.symbol;
+        count -= item.value;
+      }
+      romanNumber = result;
+    }
+
     // The number of responses is stored in the DYFI product
     const numResponses =
       dyfi.product?.properties?.numResp ??
@@ -152,10 +191,13 @@ async function openListDetailsMenu(quake) {
     console.log("Responses:", numResponses);
 
     // MMI
-    document.getElementById("dyfi-mmi").textContent = `Max MMI: ${dyfi.mmi}`;
+    document.getElementById("dyfi-mmi").textContent = `${romanNumber}`;
+    document.getElementById("dyfi-mmi-two").textContent = `${dyfi.mmi}`;
 
     // MMI color
-    document.getElementById("dyfi-mmi").style.color = dyfi.color;
+    document.getElementById("dyfi-mmi-box").style.backgroundColor = dyfi.color;
+    document.getElementById("dyfi-mmi-box-two").style.backgroundColor =
+      dyfi.color;
 
     // Reports
     if (numResponses !== null) {
@@ -167,7 +209,7 @@ async function openListDetailsMenu(quake) {
   } else {
     console.log("No DYFI data:", quake.id);
 
-    document.getElementById("dyfi-mmi").textContent = "No DYFI data";
+    document.getElementById("dyfi-mmi").textContent = "0";
 
     document.getElementById("dyfi-reports").textContent = "No DYFI data";
   }
