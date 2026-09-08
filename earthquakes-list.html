@@ -113,10 +113,43 @@
       }
 
       .green-square-case {
-        margin: 0px;
-        padding: 0px;
         display: flex;
-        gap: 20px;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .intensity-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .intensity-group > p {
+        margin: 0;
+        margin-right: 5px;
+      }
+
+      .green-square-popup {
+        width: 35px;
+        height: 35px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0;
+        padding: 0;
+
+        border-radius: 4px;
+
+        font-family: "Times New Roman", serif;
+        font-size: 18px;
+        font-weight: bold;
+
+        color: black;
+        flex-shrink: 0;
       }
 
       .green-square {
@@ -235,8 +268,8 @@
         .more-details-popup {
           width: 95vw;
           height: auto;
-          min-height: 265px;
-          padding: 20px;
+          min-height: 0;
+          padding: 0px;
           border-radius: 12px 12px 0 0;
         }
       }
@@ -492,9 +525,10 @@
 
         width: 400px;
         max-width: 90vw;
-        height: 450px;
+        height: auto;
+        min-height: 350px;
 
-        padding: 30px;
+        padding: 20px;
 
         background: rgb(48, 51, 54);
         color: white;
@@ -540,6 +574,19 @@
         text-decoration: none;
         font-size: 14px;
         transform: translateY(-20px);
+      }
+      #dyfi-section {
+        display: none;
+      }
+
+      #dyfi-section {
+        display: none;
+      }
+
+      #dyfi-section,
+      #shakemap-container {
+        padding: 3px;
+        margin-bottom: 30px;
       }
     </style>
   </head>
@@ -619,17 +666,35 @@
         <p id="lat-long"></p>
         <p id="time"></p>
 
-        <div class="green-square-case">
-          <p>DYFI:</p>
-          <div id="dyfi-mmi-box" class="green-square-popup">
-            <p id="dyfi-mmi"></p>
-          </div>
+        <div id="dyfi-section" class="green-square-case">
+          <!-- DYFI -->
+          <div class="intensity-group">
+            <p>DYFI:</p>
 
-          <div id="dyfi-mmi-box-two" class="green-square-popup">
-            <p id="dyfi-mmi-two"></p>
+            <!-- Roman numeral -->
+            <div id="dyfi-mmi-box" class="green-square-popup">
+              <p id="dyfi-mmi"></p>
+            </div>
+
+            <!-- Actual MMI -->
+            <div id="dyfi-mmi-value-box" class="green-square-popup">
+              <p id="dyfi-mmi-value"></p>
+            </div>
+          </div>
+          <p id="dyfi-reports"></p>
+        </div>
+        <!-- ShakeMap -->
+        <div id="shakemap-container">
+          <div class="intensity-group">
+            <p>ShakeMap:</p>
+            <div id="shakemap-mmi-box" class="green-square-popup">
+              <p id="shakemap-mmi"></p>
+            </div>
+            <div id="shakemap-mmi-value-box" class="green-square-popup">
+              <p id="shakemap-mmi-value"></p>
+            </div>
           </div>
         </div>
-        <p id="dyfi-reports"></p>
 
         <div class="button-group">
           <button onclick="openMap()">Map</button>
@@ -722,101 +787,211 @@
       let useKilometers = false;
       let selectedQuake = null;
 
-      async function getDYFI(quake) {
+      function getIntensityColor(mmi) {
+        if (mmi < 2) {
+          return "#8c8c8c"; // I
+        } else if (mmi < 4) {
+          return "#a6cee3"; // II-III
+        } else if (mmi < 5) {
+          return "#00ffff"; // IV
+        } else if (mmi < 6) {
+          return "#00ff00"; // V
+        } else if (mmi < 7) {
+          return "#ccff00"; // VI
+        } else if (mmi < 8) {
+          return "#ffff00"; // VII
+        } else if (mmi < 9) {
+          return "#ff9900"; // VIII
+        } else if (mmi < 10) {
+          return "#ff0000"; // IX
+        } else {
+          return "#cc0000"; // X+
+        }
+      }
+
+      async function getEarthquakeProducts(quake) {
         try {
           const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/${quake.id}.geojson`;
+
           const response = await fetch(url);
 
           if (!response.ok) {
-            return null;
+            return {
+              dyfi: null,
+              shakemap: null,
+            };
           }
 
           const data = await response.json();
 
           const dyfiProduct = data.properties?.products?.dyfi?.[0];
-          const shakePrudoct = data.properties?.product?.[1];
 
-          if (!dyfiProduct) {
-            return null;
-          }
+          const shakeMapProduct = data.properties?.products?.shakemap?.[0];
 
-          const geoJsonFile = dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
+          let dyfi = null;
+          let shakemap = null;
 
-          if (!geoJsonFile?.url) {
-            return null;
-          }
+          // ==========================================
+          // DYFI
+          // ==========================================
 
-          const dyfiResponse = await fetch(geoJsonFile.url);
+          if (dyfiProduct) {
+            const geoJsonFile = dyfiProduct.contents?.["dyfi_geo_1km.geojson"];
 
-          if (!dyfiResponse.ok) {
-            return null;
-          }
+            if (geoJsonFile?.url) {
+              const dyfiResponse = await fetch(geoJsonFile.url);
 
-          const dyfiGeoJson = await dyfiResponse.json();
+              if (dyfiResponse.ok) {
+                const dyfiGeoJson = await dyfiResponse.json();
 
-          // Get the highest MMI found in the DYFI grid
-          let maxMMI = null;
+                let maxMMI = null;
 
-          for (const feature of dyfiGeoJson.features || []) {
-            const properties = feature.properties || {};
+                for (const feature of dyfiGeoJson.features || []) {
+                  const properties = feature.properties || {};
 
-            const possibleMMI = Number(
-              properties.cdi ?? properties.mmi ?? properties.MMI,
-            );
+                  const possibleMMI = Number(
+                    properties.cdi ?? properties.mmi ?? properties.MMI,
+                  );
 
-            if (!isNaN(possibleMMI)) {
-              if (maxMMI === null || possibleMMI > maxMMI) {
-                maxMMI = possibleMMI;
+                  if (!isNaN(possibleMMI)) {
+                    if (maxMMI === null || possibleMMI > maxMMI) {
+                      maxMMI = possibleMMI;
+                    }
+                  }
+                }
+
+                if (maxMMI !== null) {
+                  dyfi = {
+                    mmi: maxMMI,
+                    color: getIntensityColor(maxMMI),
+                    reports: Number(dyfiProduct.properties?.numResp ?? 0),
+                    product: dyfiProduct,
+                    geojson: dyfiGeoJson,
+                  };
+                }
               }
             }
           }
 
-          // No usable MMI
-          if (maxMMI === null) {
-            return null;
-          }
+          // ==========================================
+          // SHAKE MAP
+          // ==========================================
 
-          let color;
+          if (shakeMapProduct) {
+            console.log("ShakeMap found:", quake.id);
 
-          if (maxMMI < 2) {
-            // I
-            color = "#8c8c8c";
-          } else if (maxMMI < 4) {
-            // II-III
-            color = "#a6cee3";
-          } else if (maxMMI < 5) {
-            // IV
-            color = "#00ffff";
-          } else if (maxMMI < 6) {
-            // V
-            color = "#00ff00";
-          } else if (maxMMI < 7) {
-            // VI
-            color = "#ccff00";
-          } else if (maxMMI < 8) {
-            // VII
-            color = "#ffff00";
-          } else if (maxMMI < 9) {
-            // VIII
-            color = "#ff9900";
-          } else if (maxMMI < 10) {
-            // IX
-            color = "#ff0000";
-          } else {
-            // X+
-            color = "#cc0000";
+            const contents = shakeMapProduct.contents || {};
+
+            console.log("ShakeMap contents:", contents);
+
+            // --------------------------------------
+            // Find grid.xml
+            // --------------------------------------
+
+            let gridFile = null;
+
+            for (const [key, value] of Object.entries(contents)) {
+              if (key.toLowerCase().includes("grid.xml") && value?.url) {
+                gridFile = value;
+                break;
+              }
+            }
+
+            // --------------------------------------
+            // Read grid.xml
+            // --------------------------------------
+
+            if (gridFile?.url) {
+              console.log("ShakeMap grid found:", gridFile.url);
+
+              try {
+                const gridResponse = await fetch(gridFile.url);
+
+                if (gridResponse.ok) {
+                  const xmlText = await gridResponse.text();
+
+                  const parser = new DOMParser();
+
+                  const xml = parser.parseFromString(
+                    xmlText,
+                    "application/xml",
+                  );
+
+                  // Find the MMI field
+                  const fields = Array.from(xml.querySelectorAll("grid_field"));
+
+                  const mmiField = fields.find((field) => {
+                    const name = field.getAttribute("name");
+
+                    return name && name.toLowerCase() === "mmi";
+                  });
+
+                  if (mmiField) {
+                    const mmiIndex = Number(mmiField.getAttribute("index"));
+
+                    console.log("ShakeMap MMI field index:", mmiIndex);
+
+                    const gridData = xml.querySelector("grid_data");
+
+                    if (gridData) {
+                      const lines = gridData.textContent.trim().split(/\r?\n/);
+
+                      let maxMMI = null;
+
+                      for (const line of lines) {
+                        const values = line.trim().split(/\s+/);
+
+                        if (values.length >= mmiIndex) {
+                          const mmi = Number(values[mmiIndex - 1]);
+
+                          if (!isNaN(mmi)) {
+                            if (maxMMI === null || mmi > maxMMI) {
+                              maxMMI = mmi;
+                            }
+                          }
+                        }
+                      }
+
+                      if (maxMMI !== null) {
+                        console.log("ShakeMap maximum MMI:", maxMMI);
+
+                        shakemap = {
+                          mmi: maxMMI,
+                          color: getIntensityColor(maxMMI),
+                          product: shakeMapProduct,
+                          contents: contents,
+                        };
+                      }
+                    }
+                  } else {
+                    console.warn(
+                      "ShakeMap grid.xml does not contain an MMI field:",
+                      quake.id,
+                    );
+                  }
+                }
+              } catch (error) {
+                console.warn("Could not read ShakeMap grid.xml:", error);
+              }
+            } else {
+              console.warn(
+                "ShakeMap found, but no grid.xml was found:",
+                quake.id,
+              );
+            }
           }
 
           return {
-            mmi: maxMMI,
-            color: color,
-            reports: Number(dyfiProduct.properties?.numResp ?? 0),
-            product: dyfiProduct,
-            geojson: dyfiGeoJson,
+            dyfi: dyfi,
+            shakemap: shakemap,
           };
         } catch (error) {
-          console.warn(`DYFI failed for ${quake.id}`, error);
-          return null;
+          console.warn(`Earthquake products failed for ${quake.id}`, error);
+
+          return {
+            dyfi: null,
+            shakemap: null,
+          };
         }
       }
 
@@ -874,26 +1049,16 @@
           for (let i = 0; i < earthquakes.features.length; i++) {
             const quake = earthquakes.features[i];
 
-            let dyfiData = null;
+            const products = await getEarthquakeProducts(quake);
 
-            try {
-              dyfiData = await getDYFI(quake);
-            } catch (error) {
-              console.warn(`Could not check DYFI for ${quake.id}`, error);
-            }
+            const dyfiData = products?.dyfi || null;
+            const shakemapData = products?.shakemap || null;
 
             const hasDYFI = dyfiData !== null;
+            const hasShakeMap = shakemapData !== null;
+
             const dyfiColor = dyfiData?.color || "transparent";
 
-            console.log(
-              quake.id,
-              "Has DYFI:",
-              hasDYFI,
-              "MMI:",
-              dyfiData?.mmi,
-              "Color:",
-              dyfiColor,
-            );
             const longitude = quake.geometry.coordinates[0];
             const latitude = quake.geometry.coordinates[1];
             let depth = quake.geometry.coordinates[2];
@@ -943,24 +1108,56 @@
 
 <div class="details">
 
+
     <div class="depth-row">
-        Depth: ${depth.toFixed(2)} ${useKilometers ? "km" : "miles"},
+
+        Depth: ${depth.toFixed(2)}
+        ${useKilometers ? "km" : "miles"},
 
         ${
           hasDYFI
             ? `
-        <span>DYFI: </span>
+            <span>DYFI:</span>
+
             <div
                 class="green-square"
                 style="background-color: ${dyfiColor}"
             >
                 ${dyfiMarks(dyfiData.mmi)}
             </div>
-        `
+            `
             : ""
         }
+
+       ${
+         hasShakeMap
+           ? `
+        <span>ShakeMap:</span>
+
+        <div
+            class="green-square"
+            style="background-color: ${shakemapData.color}"
+        >
+            ${dyfiMarks(shakemapData.mmi)}
+        </div>
+        `
+           : ""
+       }
+
     </div>
 
+    ${
+      showLatLong === false
+        ? `
+        <div>
+            Latitude: ${latitude.toFixed(2)} |
+            Longitude: ${longitude.toFixed(2)}
+        </div>
+        `
+        : ""
+    }
+
+</div>
     ${
       showLatLong === false
         ? `<div>

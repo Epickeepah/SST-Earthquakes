@@ -127,6 +127,28 @@ async function getDYFI(quake) {
   }
 }
 
+function getIntensityColor(mmi) {
+  if (mmi < 2) {
+    return "#8c8c8c"; // I
+  } else if (mmi < 4) {
+    return "#a6cee3"; // II-III
+  } else if (mmi < 5) {
+    return "#00ffff"; // IV
+  } else if (mmi < 6) {
+    return "#00ff00"; // V
+  } else if (mmi < 7) {
+    return "#ccff00"; // VI
+  } else if (mmi < 8) {
+    return "#ffff00"; // VII
+  } else if (mmi < 9) {
+    return "#ff9900"; // VIII
+  } else if (mmi < 10) {
+    return "#ff0000"; // IX
+  } else {
+    return "#cc0000"; // X+
+  }
+}
+
 async function openListDetailsMenu(quake) {
   selectedQuake = quake;
 
@@ -138,8 +160,12 @@ async function openListDetailsMenu(quake) {
   const location = quake.properties.place;
   const time = new Date(quake.properties.time);
 
-  // Basic earthquake information
+  // ==========================================
+  // BASIC EARTHQUAKE INFORMATION
+  // ==========================================
+
   document.getElementById("quake-name").textContent = location;
+
   document.getElementById("mag").textContent = `Magnitude: ${magnitude}`;
 
   document.getElementById("depth").textContent = `Depth: ${depth}`;
@@ -151,55 +177,98 @@ async function openListDetailsMenu(quake) {
 
   document.getElementById("quake-id").textContent = `Quake ID: ${quake.id}`;
 
-  // Get DYFI information
-  const dyfi = await getDYFI(quake);
+  // ==========================================
+  // GET DYFI + SHAKE MAP
+  // ==========================================
 
-  if (dyfi) {
-    console.log("Earthquake:", quake.id);
-    console.log("Max MMI:", dyfi.mmi);
+  const products = await getEarthquakeProducts(quake);
 
-    count = Math.round(dyfi.mmi);
+  const dyfi = products?.dyfi || null;
+  const shakeMap = products?.shakemap || null;
+
+  console.log("=================================");
+  console.log("Earthquake:", quake.id);
+  console.log("DYFI:", dyfi);
+  console.log("ShakeMap:", shakeMap);
+  console.log("=================================");
+
+  // ==========================================
+  // DYFI
+  // ==========================================
+
+  if (dyfi && dyfi.mmi !== null && dyfi.mmi !== undefined) {
+    console.log("DYFI MMI:", dyfi.mmi);
+
+    let count = Math.round(Number(dyfi.mmi));
+
     let romanNumber = "I";
 
     if (count >= 10) {
       romanNumber = "X+";
-    }
+    } else {
+      const roman = [
+        { value: 9, symbol: "IX" },
+        { value: 5, symbol: "V" },
+        { value: 4, symbol: "IV" },
+        { value: 1, symbol: "I" },
+      ];
 
-    const roman = [
-      { value: 9, symbol: "IX" },
-      { value: 5, symbol: "V" },
-      { value: 4, symbol: "IV" },
-      { value: 1, symbol: "I" },
-    ];
+      let result = "";
 
-    let result = "";
-
-    for (const item of roman) {
-      while (count >= item.value) {
-        result += item.symbol;
-        count -= item.value;
+      for (const item of roman) {
+        while (count >= item.value) {
+          result += item.symbol;
+          count -= item.value;
+        }
       }
+
       romanNumber = result;
     }
 
-    // The number of responses is stored in the DYFI product
+    // ==========================================
+    // DYFI RESPONSES
+    // ==========================================
+
     const numResponses =
       dyfi.product?.properties?.numResp ??
       dyfi.product?.properties?.numresp ??
       null;
 
-    console.log("Responses:", numResponses);
+    console.log("DYFI Responses:", numResponses);
 
-    // MMI
-    document.getElementById("dyfi-mmi").textContent = `${romanNumber}`;
-    document.getElementById("dyfi-mmi-two").textContent = `${dyfi.mmi}`;
+    // ==========================================
+    // DYFI ROMAN NUMERAL
+    // ==========================================
 
-    // MMI color
+    document.getElementById("dyfi-mmi").textContent = romanNumber;
+
+    // ==========================================
+    // DYFI ACTUAL NUMBER
+    // ==========================================
+
+    document.getElementById("dyfi-mmi-value").textContent = Number(
+      dyfi.mmi,
+    ).toFixed(1);
+
+    // ==========================================
+    // DYFI COLORS
+    // ==========================================
+
     document.getElementById("dyfi-mmi-box").style.backgroundColor = dyfi.color;
-    document.getElementById("dyfi-mmi-box-two").style.backgroundColor =
+
+    document.getElementById("dyfi-mmi-value-box").style.backgroundColor =
       dyfi.color;
 
-    // Reports
+    // Make sure DYFI boxes are visible
+
+    document.getElementById("dyfi-mmi-box").style.display = "flex";
+
+    document.getElementById("dyfi-mmi-value-box").style.display = "flex";
+
+    // ==========================================
+    // REPORTS
+    // ==========================================
+
     if (numResponses !== null) {
       document.getElementById("dyfi-reports").textContent =
         `Reports: ${numResponses}`;
@@ -209,12 +278,148 @@ async function openListDetailsMenu(quake) {
   } else {
     console.log("No DYFI data:", quake.id);
 
-    document.getElementById("dyfi-mmi").textContent = "0";
+    document.getElementById("dyfi-mmi").textContent = "";
+
+    document.getElementById("dyfi-mmi-value").textContent = "";
+
+    document.getElementById("dyfi-mmi-box").style.display = "none";
+
+    document.getElementById("dyfi-mmi-value-box").style.display = "none";
 
     document.getElementById("dyfi-reports").textContent = "No DYFI data";
   }
 
-  // Show popup
+  // ==========================================
+  // SHAKE MAP
+  // ==========================================
+
+  if (
+    shakeMap &&
+    shakeMap.mmi !== null &&
+    shakeMap.mmi !== undefined &&
+    !isNaN(Number(shakeMap.mmi))
+  ) {
+    console.log("ShakeMap MMI:", shakeMap.mmi);
+
+    let shakeMapCount = Math.round(Number(shakeMap.mmi));
+
+    let shakeMapRoman = "I";
+
+    // ==========================================
+    // SHAKE MAP ROMAN NUMERAL
+    // ==========================================
+
+    if (shakeMapCount >= 10) {
+      shakeMapRoman = "X+";
+    } else {
+      const roman = [
+        { value: 9, symbol: "IX" },
+        { value: 5, symbol: "V" },
+        { value: 4, symbol: "IV" },
+        { value: 1, symbol: "I" },
+      ];
+
+      let result = "";
+
+      for (const item of roman) {
+        while (shakeMapCount >= item.value) {
+          result += item.symbol;
+          shakeMapCount -= item.value;
+        }
+      }
+
+      shakeMapRoman = result;
+    }
+
+    // ==========================================
+    // SHAKE MAP ROMAN NUMERAL
+    // ==========================================
+
+    document.getElementById("shakemap-mmi").textContent = shakeMapRoman;
+
+    // ==========================================
+    // SHAKE MAP ACTUAL NUMBER
+    // ==========================================
+
+    document.getElementById("shakemap-mmi-value").textContent = Number(
+      shakeMap.mmi,
+    ).toFixed(1);
+
+    // ==========================================
+    // SHAKE MAP COLORS
+    // ==========================================
+
+    document.getElementById("shakemap-mmi-box").style.backgroundColor =
+      shakeMap.color;
+
+    document.getElementById("shakemap-mmi-value-box").style.backgroundColor =
+      shakeMap.color;
+
+    // ==========================================
+    // SHOW SHAKE MAP BOXES
+    // ==========================================
+
+    document.getElementById("shakemap-mmi-box").style.display = "flex";
+
+    document.getElementById("shakemap-mmi-value-box").style.display = "flex";
+
+    console.log("ShakeMap displayed:", shakeMap.mmi, shakeMapRoman);
+  } else {
+    console.log("No ShakeMap MMI:", quake.id);
+
+    document.getElementById("shakemap-mmi").textContent = "";
+
+    document.getElementById("shakemap-mmi-value").textContent = "";
+
+    document.getElementById("shakemap-mmi-box").style.display = "none";
+
+    document.getElementById("shakemap-mmi-value-box").style.display = "none";
+  }
+
+  // ==========================================
+  // SHOW / HIDE PRODUCT SECTION
+  // ==========================================
+
+  const hasDYFI =
+    dyfi &&
+    dyfi.mmi !== null &&
+    dyfi.mmi !== undefined &&
+    !isNaN(Number(dyfi.mmi));
+
+  const hasShakeMap =
+    shakeMap &&
+    shakeMap.mmi !== null &&
+    shakeMap.mmi !== undefined &&
+    !isNaN(Number(shakeMap.mmi));
+
+  // DYFI container
+  document.getElementById("dyfi-section").style.display = hasDYFI
+    ? "block"
+    : "none";
+
+  // ShakeMap container
+  document.getElementById("shakemap-container").style.display = hasShakeMap
+    ? "block"
+    : "none";
+
+  // Whole product section
+  document.getElementById("dyfi-section").style.display =
+    hasDYFI || hasShakeMap ? "flex" : "none";
+
+  // ==========================================
+  // SHOW POPUP
+  // ==========================================
+
+  const popup = document.querySelector(".more-details-popup");
+
+  if (popup) {
+    popup.classList.add("show");
+  }
+
+  // ==========================================
+  // SHOW POPUP
+  // ==========================================
+
   document.querySelector(".more-details-popup").classList.add("show");
 }
 
